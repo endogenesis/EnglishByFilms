@@ -11,6 +11,14 @@ struct TMDBMovieCatalogService: MovieCatalogService {
     private let configuration: TMDBConfiguration
     private let session: URLSession
 
+    private struct ErrorResponse: Decodable {
+        let statusMessage: String?
+
+        private enum CodingKeys: String, CodingKey {
+            case statusMessage = "status_message"
+        }
+    }
+
     private enum Endpoint: String {
         case popularMovies = "movie/popular"
         case searchMovies = "search/movie"
@@ -51,6 +59,7 @@ struct TMDBMovieCatalogService: MovieCatalogService {
 
     private func makeRequest(endpoint: Endpoint, queryItems: [URLQueryItem]) throws -> URLRequest {
         guard !configuration.accessToken.isEmpty else {
+            log("Error: missing access token")
             throw MovieCatalogError.missingAccessToken
         }
 
@@ -59,6 +68,7 @@ struct TMDBMovieCatalogService: MovieCatalogService {
             url: endpointURL,
             resolvingAgainstBaseURL: false
         ) else {
+            log("Error: could not create URL components for \(endpoint.rawValue)")
             throw MovieCatalogError.invalidRequest
         }
 
@@ -67,6 +77,7 @@ struct TMDBMovieCatalogService: MovieCatalogService {
         ]
 
         guard let url = components.url else {
+            log("Error: could not create URL for \(endpoint.rawValue)")
             throw MovieCatalogError.invalidRequest
         }
 
@@ -81,27 +92,71 @@ struct TMDBMovieCatalogService: MovieCatalogService {
     }
 
     private func response<Response: Decodable>(for request: URLRequest) async throws -> Response {
-        let (data, response) = try await session.data(for: request)
+        let requestDescription = requestDescription(for: request)
+        log("Request -> \(requestDescription)")
+
+        let result: (Data, URLResponse)
+        do {
+            result = try await session.data(for: request)
+        } catch {
+            if !isCancellation(error) {
+                log("Transport error for \(requestDescription): \(error.localizedDescription)")
+            }
+            throw error
+        }
+
+        let (data, response) = result
 
         guard let httpResponse = response as? HTTPURLResponse else {
+            log("Error for \(requestDescription): response is not HTTP")
             throw MovieCatalogError.invalidResponse
         }
+
+        log("Response <- HTTP \(httpResponse.statusCode), \(data.count) bytes")
 
         switch httpResponse.statusCode {
         case 200..<300:
             break
         case 401:
+            logHTTPError(for: requestDescription, response: httpResponse, data: data)
             throw MovieCatalogError.unauthorized
         case 429:
+            logHTTPError(for: requestDescription, response: httpResponse, data: data)
             throw MovieCatalogError.rateLimited
         default:
+            logHTTPError(for: requestDescription, response: httpResponse, data: data)
             throw MovieCatalogError.server(statusCode: httpResponse.statusCode)
         }
 
         do {
             return try JSONDecoder().decode(Response.self, from: data)
         } catch {
+            log("Decoding error for \(requestDescription): \(String(reflecting: error))")
             throw MovieCatalogError.invalidData
         }
+    }
+
+    private func logHTTPError(
+        for requestDescription: String,
+        response: HTTPURLResponse,
+        data: Data
+    ) {
+        let message = try? JSONDecoder().decode(ErrorResponse.self, from: data).statusMessage
+        let details = message.map { ": \($0)" } ?? ""
+        log("HTTP error for \(requestDescription): \(response.statusCode)\(details)")
+    }
+
+    private func requestDescription(for request: URLRequest) -> String {
+        "\(request.httpMethod ?? "GET") \(request.url?.path ?? "unknown endpoint")"
+    }
+
+    private func isCancellation(_ error: Error) -> Bool {
+        error is CancellationError || (error as? URLError)?.code == .cancelled
+    }
+
+    private func log(_ message: String) {
+#if DEBUG
+        print("[TMDB] \(message)")
+#endif
     }
 }
