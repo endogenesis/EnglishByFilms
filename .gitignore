@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Xcode user-specific data
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Xcode build products
+build/
+DerivedData/
+*.app
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcarchive
+
+# Swift Package Manager local artifacts
+.build/
+.swiftpm/
+
+# Test and coverage artifacts
+*.profdata
+*.xccovarchive
+
+# Local configuration and secrets
+EnglishByFilms/Configuration/Secrets.json
+.env
+.env.*
+!.env.example
+
+# Local editor settings
+.idea/
+.vscode/
+
+# Local project instructions and documentation
+AGENTS.md
+/docs/
