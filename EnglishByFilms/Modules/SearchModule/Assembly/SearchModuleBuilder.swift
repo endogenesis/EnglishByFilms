@@ -5,15 +5,13 @@
 //  Created by Mikalai Tsyhankou on 06/08/2026.
 //
 
-import SwiftUI
-
 enum SearchModuleBuilder {
     @MainActor
-    static func build() -> some View {
+    static func build() -> SearchView {
         let router = SearchRouter()
         let viewModel = SearchViewModel(router: router)
 
-        return SearchModuleRootView(
+        return SearchView(
             router: router,
             viewModel: viewModel
         )
