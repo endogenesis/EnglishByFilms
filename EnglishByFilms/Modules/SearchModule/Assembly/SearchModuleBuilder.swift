@@ -7,9 +7,14 @@
 
 enum SearchModuleBuilder {
     @MainActor
-    static func build() -> SearchView {
+    static func build(
+        movieCatalogService: MovieCatalogService
+    ) -> SearchView {
         let router = SearchRouter()
-        let viewModel = SearchViewModel(router: router)
+        let viewModel = SearchViewModel(
+            router: router,
+            movieCatalogService: movieCatalogService
+        )
 
         return SearchView(
             router: router,

@@ -22,14 +22,6 @@ struct SearchView: View {
 
     var body: some View {
         NavigationStack(path: $router.path) {
-            content
-        }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch viewModel.state {
-        case .idle:
             Color.clear
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -37,5 +29,7 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchModuleBuilder.build()
+    SearchModuleBuilder.build(
+        movieCatalogService: PreviewMovieCatalogService()
+    )
 }

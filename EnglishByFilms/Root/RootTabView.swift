@@ -29,7 +29,9 @@ struct RootTabView: View {
 #Preview {
     RootTabView(
         coordinator: AppCoordinator(
-            container: AppContainer()
+            container: AppContainer(
+                movieCatalogService: PreviewMovieCatalogService()
+            )
         )
     )
 }
