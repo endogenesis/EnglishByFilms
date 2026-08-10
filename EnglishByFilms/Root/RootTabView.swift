@@ -23,6 +23,7 @@ struct RootTabView: View {
                 }
                 .tag(AppTab.search)
         }
+        .preferredColorScheme(.dark)
     }
 }
 

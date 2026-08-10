@@ -18,9 +18,14 @@ nonisolated struct TMDBMoviePageDTO: Decodable {
         case totalPages = "total_pages"
     }
 
-    func toDomain(imageBaseURL: URL) -> MoviePage {
+    func toDomain(imageBaseURL: URL, genreNamesByID: [Int: String]) -> MoviePage {
         MoviePage(
-            movies: results.map { $0.toDomain(imageBaseURL: imageBaseURL) },
+            movies: results.map {
+                $0.toDomain(
+                    imageBaseURL: imageBaseURL,
+                    genreNamesByID: genreNamesByID
+                )
+            },
             currentPage: page,
             totalPages: totalPages
         )
@@ -35,6 +40,7 @@ nonisolated struct TMDBMovieDTO: Decodable {
     let releaseDate: String?
     let posterPath: String?
     let voteAverage: Double
+    let genreIDs: [Int]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -44,9 +50,10 @@ nonisolated struct TMDBMovieDTO: Decodable {
         case releaseDate = "release_date"
         case posterPath = "poster_path"
         case voteAverage = "vote_average"
+        case genreIDs = "genre_ids"
     }
 
-    func toDomain(imageBaseURL: URL) -> MovieSummary {
+    func toDomain(imageBaseURL: URL, genreNamesByID: [Int: String]) -> MovieSummary {
         MovieSummary(
             id: id,
             title: title,
@@ -54,7 +61,8 @@ nonisolated struct TMDBMovieDTO: Decodable {
             overview: overview,
             releaseYear: releaseYear,
             posterURL: posterURL(imageBaseURL: imageBaseURL),
-            rating: voteAverage
+            rating: voteAverage,
+            genres: genreIDs.compactMap { genreNamesByID[$0] }
         )
     }
 

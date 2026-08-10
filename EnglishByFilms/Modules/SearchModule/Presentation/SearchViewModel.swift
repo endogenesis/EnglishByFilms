@@ -8,11 +8,13 @@
 import Foundation
 import Observation
 
-@MainActor
 @Observable
 final class SearchViewModel {
     private(set) var state: SearchViewState = .idle
     var query = ""
+    var searchQuery: String {
+        query.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     private let router: SearchRouter
     private let movieCatalogService: MovieCatalogService
@@ -33,7 +35,7 @@ final class SearchViewModel {
     }
 
     func loadMovies() async {
-        let requestedQuery = query
+        let requestedQuery = searchQuery
         paginationContext = nil
         state = .loading
 
@@ -54,6 +56,10 @@ final class SearchViewModel {
                 movies: page.movies,
                 nextPage: nextPageState(for: page)
             )
+        } catch is CancellationError {
+            return
+        } catch let error as URLError where error.code == .cancelled {
+            return
         } catch {
             paginationContext = nil
             state = .failed(message: error.localizedDescription)

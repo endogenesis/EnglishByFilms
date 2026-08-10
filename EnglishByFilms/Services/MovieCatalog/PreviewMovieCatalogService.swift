@@ -16,7 +16,8 @@ struct PreviewMovieCatalogService: MovieCatalogService {
             overview: "A hacker discovers that the world he knows is a simulation.",
             releaseYear: 1999,
             posterURL: nil,
-            rating: 8.2
+            rating: 8.2,
+            genres: ["Action", "Science Fiction"]
         ),
         MovieSummary(
             id: 27205,
@@ -25,7 +26,8 @@ struct PreviewMovieCatalogService: MovieCatalogService {
             overview: "A thief enters people's dreams to steal their secrets.",
             releaseYear: 2010,
             posterURL: nil,
-            rating: 8.4
+            rating: 8.4,
+            genres: ["Action", "Science Fiction", "Adventure"]
         )
     ]
 

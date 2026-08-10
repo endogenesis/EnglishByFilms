@@ -7,9 +7,10 @@
 
 import Foundation
 
-struct TMDBMovieCatalogService: MovieCatalogService {
+actor TMDBMovieCatalogService: MovieCatalogService {
     private let configuration: TMDBConfiguration
     private let session: URLSession
+    private var cachedGenreNamesByID: [Int: String]?
 
     private struct ErrorResponse: Decodable {
         let statusMessage: String?
@@ -20,6 +21,7 @@ struct TMDBMovieCatalogService: MovieCatalogService {
     }
 
     private enum Endpoint: String {
+        case movieGenres = "genre/movie/list"
         case popularMovies = "movie/popular"
         case searchMovies = "search/movie"
     }
@@ -36,9 +38,13 @@ struct TMDBMovieCatalogService: MovieCatalogService {
                 URLQueryItem(name: "page", value: String(page))
             ]
         )
-        let response: TMDBMoviePageDTO = try await response(for: request)
+        async let response: TMDBMoviePageDTO = response(for: request)
+        let genreNamesByID = try await genreNamesByID()
 
-        return response.toDomain(imageBaseURL: configuration.imageBaseURL)
+        return try await response.toDomain(
+            imageBaseURL: configuration.imageBaseURL,
+            genreNamesByID: genreNamesByID
+        )
     }
 
     func searchMovies(query: String, page: Int) async throws -> MoviePage {
@@ -50,12 +56,29 @@ struct TMDBMovieCatalogService: MovieCatalogService {
                 URLQueryItem(name: "include_adult", value: "false")
             ]
         )
-        let response: TMDBMoviePageDTO = try await response(for: request)
+        async let response: TMDBMoviePageDTO = response(for: request)
+        let genreNamesByID = try await genreNamesByID()
 
-        return response.toDomain(imageBaseURL: configuration.imageBaseURL)
+        return try await response.toDomain(
+            imageBaseURL: configuration.imageBaseURL,
+            genreNamesByID: genreNamesByID
+        )
     }
 
     // MARK: - Private
+
+    private func genreNamesByID() async throws -> [Int: String] {
+        if let cachedGenreNamesByID {
+            return cachedGenreNamesByID
+        }
+
+        let request = try makeRequest(endpoint: .movieGenres, queryItems: [])
+        let response: TMDBGenreListDTO = try await response(for: request)
+        let genreNamesByID = response.namesByID
+        cachedGenreNamesByID = genreNamesByID
+
+        return genreNamesByID
+    }
 
     private func makeRequest(endpoint: Endpoint, queryItems: [URLQueryItem]) throws -> URLRequest {
         guard !configuration.accessToken.isEmpty else {
@@ -91,7 +114,9 @@ struct TMDBMovieCatalogService: MovieCatalogService {
         return request
     }
 
-    private func response<Response: Decodable>(for request: URLRequest) async throws -> Response {
+    private func response<Response: Decodable & Sendable>(
+        for request: URLRequest
+    ) async throws -> Response {
         let requestDescription = requestDescription(for: request)
         log("Request -> \(requestDescription)")
 

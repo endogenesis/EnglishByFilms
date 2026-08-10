@@ -15,4 +15,5 @@ struct MovieSummary: Identifiable, Equatable {
     let releaseYear: Int?
     let posterURL: URL?
     let rating: Double
+    let genres: [String]
 }
