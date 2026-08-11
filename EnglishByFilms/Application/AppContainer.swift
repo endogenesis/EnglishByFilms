@@ -10,20 +10,29 @@ import SwiftUI
 @MainActor
 final class AppContainer {
     private let movieCatalogService: MovieCatalogService
+    private let subtitleService: SubtitleService
 
     init() {
         movieCatalogService = TMDBMovieCatalogService(
             configuration: .live()
         )
+        subtitleService = OpenSubtitlesService(
+            configuration: .live()
+        )
     }
 
-    init(movieCatalogService: MovieCatalogService) {
+    init(
+        movieCatalogService: MovieCatalogService,
+        subtitleService: SubtitleService
+    ) {
         self.movieCatalogService = movieCatalogService
+        self.subtitleService = subtitleService
     }
 
     func makeSearchModule() -> some View {
         SearchModuleBuilder.build(
-            movieCatalogService: movieCatalogService
+            movieCatalogService: movieCatalogService,
+            subtitleService: subtitleService
         )
     }
 }

@@ -40,11 +40,14 @@ nonisolated struct OpenSubtitlesSubtitleDTO: Decodable {
                 releaseName: attributes.releaseName ?? fileName,
                 languageCode: attributes.languageCode ?? "",
                 downloadCount: attributes.downloadCount ?? 0,
+                newDownloadCount: attributes.newDownloadCount ?? 0,
                 rating: attributes.rating ?? 0,
                 hearingImpaired: attributes.hearingImpaired ?? false,
                 fromTrustedSource: attributes.fromTrustedSource ?? false,
+                foreignPartsOnly: attributes.foreignPartsOnly ?? false,
                 machineTranslated: attributes.machineTranslated ?? false,
-                aiTranslated: attributes.aiTranslated ?? false
+                aiTranslated: attributes.aiTranslated ?? false,
+                fileCount: attributes.files.count
             )
         }
     }
@@ -53,9 +56,11 @@ nonisolated struct OpenSubtitlesSubtitleDTO: Decodable {
 nonisolated struct OpenSubtitlesSubtitleAttributesDTO: Decodable {
     let languageCode: String?
     let downloadCount: Int?
+    let newDownloadCount: Int?
     let hearingImpaired: Bool?
     let rating: Double?
     let fromTrustedSource: Bool?
+    let foreignPartsOnly: Bool?
     let machineTranslated: Bool?
     let aiTranslated: Bool?
     let releaseName: String?
@@ -64,9 +69,11 @@ nonisolated struct OpenSubtitlesSubtitleAttributesDTO: Decodable {
     private enum CodingKeys: String, CodingKey {
         case languageCode = "language"
         case downloadCount = "download_count"
+        case newDownloadCount = "new_download_count"
         case hearingImpaired = "hearing_impaired"
         case rating = "ratings"
         case fromTrustedSource = "from_trusted"
+        case foreignPartsOnly = "foreign_parts_only"
         case machineTranslated = "machine_translated"
         case aiTranslated = "ai_translated"
         case releaseName = "release"

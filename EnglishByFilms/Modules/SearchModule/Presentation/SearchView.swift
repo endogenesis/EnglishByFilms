@@ -54,15 +54,24 @@ struct SearchView: View {
             ScrollView {
                 LazyVStack(alignment: .leading) {
                     ForEach(movies) { movie in
-                        SearchMovieRow(movie: movie)
-                            .task {
-                                guard movie.id == movies.last?.id,
-                                      nextPage == .ready else {
-                                    return
-                                }
-
-                                await viewModel.loadNextPage()
+                        Button {
+                            Task {
+                                await viewModel.downloadBestEnglishSubtitle(for: movie)
                             }
+                        } label: {
+                            SearchMovieRow(movie: movie)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .task {
+                            guard movie.id == movies.last?.id,
+                                  nextPage == .ready else {
+                                return
+                            }
+
+                            await viewModel.loadNextPage()
+                        }
                     }
 
                     if nextPage == .loading {
@@ -81,6 +90,7 @@ struct SearchView: View {
 
 #Preview {
     SearchModuleBuilder.build(
-        movieCatalogService: PreviewMovieCatalogService()
+        movieCatalogService: PreviewMovieCatalogService(),
+        subtitleService: PreviewSubtitleService()
     )
 }

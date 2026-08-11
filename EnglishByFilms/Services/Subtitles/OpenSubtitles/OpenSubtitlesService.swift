@@ -33,14 +33,21 @@ actor OpenSubtitlesService: SubtitleService {
         let request = try makeRequest(
             endpoint: .subtitles,
             queryItems: [
+                URLQueryItem(name: "ai_translated", value: "exclude"),
+                URLQueryItem(name: "foreign_parts_only", value: "exclude"),
                 URLQueryItem(name: "languages", value: "en"),
+                URLQueryItem(name: "machine_translated", value: "exclude"),
+                URLQueryItem(name: "order_by", value: "new_download_count"),
+                URLQueryItem(name: "order_direction", value: "desc"),
                 URLQueryItem(name: "page", value: String(page)),
                 URLQueryItem(name: "tmdb_id", value: String(tmdbMovieID)),
                 URLQueryItem(name: "type", value: "movie")
             ]
         )
         let response: OpenSubtitlesSearchResponseDTO = try await response(for: request)
-        return response.toDomain()
+        let page = response.toDomain()
+        logSearchResults(page, tmdbMovieID: tmdbMovieID)
+        return page
     }
 
     func downloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
@@ -48,6 +55,7 @@ actor OpenSubtitlesService: SubtitleService {
             throw SubtitleServiceError.invalidRequest
         }
 
+        log("Download requested for fileID \(fileID)")
         let request = try makeDownloadRequest(fileID: fileID)
         let response: OpenSubtitlesDownloadResponseDTO = try await response(for: request)
 
@@ -57,6 +65,11 @@ actor OpenSubtitlesService: SubtitleService {
         }
 
         let data = try await downloadFile(from: response.link)
+        log("Downloaded \(response.fileName), fileID \(fileID), \(data.count) bytes")
+        log(
+            "Download quota: \(response.remainingDownloads) remaining, "
+                + "reset at \(response.resetTimeUTC ?? "unknown")"
+        )
         return DownloadedSubtitle(
             fileName: response.fileName,
             data: data,
@@ -66,6 +79,28 @@ actor OpenSubtitlesService: SubtitleService {
     }
 
     // MARK: - Private
+
+    private func logSearchResults(_ page: SubtitlePage, tmdbMovieID: Int) {
+        log(
+            "Found \(page.subtitles.count) English subtitle files for TMDB ID "
+                + "\(tmdbMovieID), page \(page.currentPage)/\(page.totalPages)"
+        )
+
+        for (index, subtitle) in page.subtitles.enumerated() {
+            log("[\(index + 1)] fileID=\(subtitle.fileID), file=\(subtitle.fileName)")
+            log(
+                "    release=\(subtitle.releaseName), files=\(subtitle.fileCount), "
+                    + "downloads=\(subtitle.downloadCount), "
+                    + "newDownloads=\(subtitle.newDownloadCount), rating=\(subtitle.rating)"
+            )
+            log(
+                "    trusted=\(subtitle.fromTrustedSource), "
+                    + "hearingImpaired=\(subtitle.hearingImpaired), "
+                    + "foreignPartsOnly=\(subtitle.foreignPartsOnly), "
+                    + "machine=\(subtitle.machineTranslated), ai=\(subtitle.aiTranslated)"
+            )
+        }
+    }
 
     private func makeRequest(
         endpoint: Endpoint,

@@ -31,7 +31,8 @@ struct RootTabView: View {
     RootTabView(
         coordinator: AppCoordinator(
             container: AppContainer(
-                movieCatalogService: PreviewMovieCatalogService()
+                movieCatalogService: PreviewMovieCatalogService(),
+                subtitleService: PreviewSubtitleService()
             )
         )
     )
