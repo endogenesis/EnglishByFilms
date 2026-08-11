@@ -50,11 +50,24 @@ struct SearchView: View {
             Text("Idle")
         case .loading:
             ProgressView()
-        case let .loaded(movies, _):
+        case let .loaded(movies, nextPage):
             ScrollView {
                 LazyVStack(alignment: .leading) {
                     ForEach(movies) { movie in
                         SearchMovieRow(movie: movie)
+                            .task {
+                                guard movie.id == movies.last?.id,
+                                      nextPage == .ready else {
+                                    return
+                                }
+
+                                await viewModel.loadNextPage()
+                            }
+                    }
+
+                    if nextPage == .loading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
                     }
                 }
             }
