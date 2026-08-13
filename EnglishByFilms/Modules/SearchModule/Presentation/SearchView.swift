@@ -82,9 +82,18 @@ struct SearchView: View {
                         }
                     }
 
-                    if nextPage == .loading {
+                    switch nextPage {
+                    case .loading:
                         ProgressView()
                             .frame(maxWidth: .infinity)
+                    case let .failed(message):
+                        SearchPaginationFailureView(message: message) {
+                            Task {
+                                await viewModel.loadNextPage()
+                            }
+                        }
+                    case .ready, .finished:
+                        EmptyView()
                     }
                 }
             }
