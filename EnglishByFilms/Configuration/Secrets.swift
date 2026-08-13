@@ -7,7 +7,7 @@
 
 import Foundation
 
-nonisolated enum Secrets {
+enum Secrets {
     enum Key: String {
         case tmdbAccessToken
         case openSubtitlesAPIKey

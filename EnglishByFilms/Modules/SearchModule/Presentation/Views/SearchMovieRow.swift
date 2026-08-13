@@ -13,26 +13,30 @@ struct SearchMovieRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
             poster
-                .frame(width: 56, height: 84)
-                .clipped()
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(movie.title)
-                    .font(.headline)
-
-                if !metadata.isEmpty {
-                    Text(metadata)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(movie.title)
+                        .font(.system(size: 17, weight: .semibold))
                         .lineLimit(1)
-                }
 
-                if movie.rating > 0 {
-                    Text("★ \(movie.rating.formatted(.number.precision(.fractionLength(1))))")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.semanticRating)
-                        .modifier(RatingShimmerModifier(isActive: movie.rating >= 8))
+                    if !metadata.isEmpty {
+                        Text(metadata)
+                            .font(.system(size: 13, weight: .regular))
+                            .foregroundStyle(.textSecondary)
+                            .lineLimit(1)
+                    }
+
+                    if movie.rating > 0 {
+                        Text("★ \(movie.rating.formatted(.number.precision(.fractionLength(1))))")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.semanticRating)
+                            .modifier(RatingShimmerModifier(isActive: movie.rating >= 8))
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.textTertiary)
             }
         }
     }
@@ -49,27 +53,31 @@ struct SearchMovieRow: View {
 
     @ViewBuilder
     private var poster: some View {
-        if let posterURL = movie.posterURL {
-            AsyncImage(url: posterURL) { phase in
-                switch phase {
-                case .empty:
-                    ZStack {
-                        Color.secondary.opacity(0.15)
-                        ProgressView()
+        Group {
+            if let posterURL = movie.posterURL {
+                AsyncImage(url: posterURL) { phase in
+                    switch phase {
+                    case .empty:
+                        ZStack {
+                            Color.secondary.opacity(0.15)
+                            ProgressView()
+                        }
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
+                        missingPoster
+                    @unknown default:
+                        missingPoster
                     }
-                case let .success(image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                case .failure:
-                    missingPoster
-                @unknown default:
-                    missingPoster
                 }
+            } else {
+                missingPoster
             }
-        } else {
-            missingPoster
         }
+        .frame(width: 56, height: 84)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private var missingPoster: some View {

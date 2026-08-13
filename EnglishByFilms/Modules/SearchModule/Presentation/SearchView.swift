@@ -52,16 +52,24 @@ struct SearchView: View {
             ProgressView()
         case let .loaded(movies, nextPage):
             ScrollView {
-                LazyVStack(alignment: .leading) {
+                LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(movies) { movie in
                         Button {
                             Task {
                                 await viewModel.downloadBestEnglishSubtitle(for: movie)
                             }
                         } label: {
-                            SearchMovieRow(movie: movie)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
+                            VStack(spacing: 0) {
+                                SearchMovieRow(movie: movie)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.bottom, 14)
+                                Rectangle()
+                                    .fill(Color.white.opacity(0.06))
+                                    .frame(height: 1)
+                                    .padding(.leading, 72)
+                                    .padding(.bottom, 15)
+                            }
+
                         }
                         .buttonStyle(.plain)
                         .task {
@@ -80,6 +88,8 @@ struct SearchView: View {
                     }
                 }
             }
+            .contentMargins(.horizontal, 24, for: .scrollContent)
+            .contentMargins(.top, 8, for: .scrollContent)
         case .empty(let query):
             ContentUnavailableView.search(text: query)
         case let .failed(message):
