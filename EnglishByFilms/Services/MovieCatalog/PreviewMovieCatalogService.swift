@@ -8,28 +8,43 @@
 import Foundation
 
 struct PreviewMovieCatalogService: MovieCatalogService {
-    private let movies = [
-        MovieSummary(
+    private let movieDetailsCollection = [
+        MovieDetails(
             id: 603,
             title: "The Matrix",
-            originalTitle: "The Matrix",
             overview: "A hacker discovers that the world he knows is a simulation.",
             releaseYear: 1999,
-            posterURL: nil,
+            runtimeMinutes: 136,
+            backdropURL: nil,
             rating: 8.2,
             genres: ["Action", "Science Fiction"]
         ),
-        MovieSummary(
+        MovieDetails(
             id: 27205,
             title: "Inception",
-            originalTitle: "Inception",
             overview: "A thief enters people's dreams to steal their secrets.",
             releaseYear: 2010,
-            posterURL: nil,
+            runtimeMinutes: 148,
+            backdropURL: nil,
             rating: 8.4,
             genres: ["Action", "Science Fiction", "Adventure"]
         )
     ]
+
+    private var movies: [MovieSummary] {
+        movieDetailsCollection.map { details in
+            MovieSummary(
+                id: details.id,
+                title: details.title,
+                originalTitle: details.title,
+                overview: details.overview,
+                releaseYear: details.releaseYear,
+                posterURL: nil,
+                rating: details.rating,
+                genres: details.genres
+            )
+        }
+    }
 
     func popularMovies(page: Int) async throws -> MoviePage {
         MoviePage(
@@ -40,10 +55,9 @@ struct PreviewMovieCatalogService: MovieCatalogService {
     }
 
     func searchMovies(query: String, page: Int) async throws -> MoviePage {
-        let normalizedQuery = query.lowercased()
         let results = movies.filter {
-            $0.title.lowercased().contains(normalizedQuery)
-                || $0.originalTitle.lowercased().contains(normalizedQuery)
+            $0.title.localizedStandardContains(query)
+                || $0.originalTitle.localizedStandardContains(query)
         }
 
         return MoviePage(
@@ -51,5 +65,13 @@ struct PreviewMovieCatalogService: MovieCatalogService {
             currentPage: page,
             totalPages: 1
         )
+    }
+
+    func movieDetails(id: Int) async throws -> MovieDetails {
+        guard let details = movieDetailsCollection.first(where: { $0.id == id }) else {
+            throw MovieCatalogError.invalidData
+        }
+
+        return details
     }
 }

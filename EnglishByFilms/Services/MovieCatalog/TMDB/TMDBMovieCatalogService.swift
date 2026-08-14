@@ -20,10 +20,24 @@ actor TMDBMovieCatalogService: MovieCatalogService {
         }
     }
 
-    private enum Endpoint: String {
-        case movieGenres = "genre/movie/list"
-        case popularMovies = "movie/popular"
-        case searchMovies = "search/movie"
+    private enum Endpoint {
+        case movieDetails(id: Int)
+        case movieGenres
+        case popularMovies
+        case searchMovies
+
+        var path: String {
+            switch self {
+            case let .movieDetails(id):
+                "movie/\(id)"
+            case .movieGenres:
+                "genre/movie/list"
+            case .popularMovies:
+                "movie/popular"
+            case .searchMovies:
+                "search/movie"
+            }
+        }
     }
 
     init(configuration: TMDBConfiguration, session: URLSession = .shared) {
@@ -42,7 +56,7 @@ actor TMDBMovieCatalogService: MovieCatalogService {
         let genreNamesByID = try await genreNamesByID()
 
         return try await response.toDomain(
-            imageBaseURL: configuration.imageBaseURL,
+            imageBaseURL: configuration.posterImageBaseURL,
             genreNamesByID: genreNamesByID
         )
     }
@@ -60,8 +74,17 @@ actor TMDBMovieCatalogService: MovieCatalogService {
         let genreNamesByID = try await genreNamesByID()
 
         return try await response.toDomain(
-            imageBaseURL: configuration.imageBaseURL,
+            imageBaseURL: configuration.posterImageBaseURL,
             genreNamesByID: genreNamesByID
+        )
+    }
+
+    func movieDetails(id: Int) async throws -> MovieDetails {
+        let request = try makeRequest(endpoint: .movieDetails(id: id), queryItems: [])
+        let response: TMDBMovieDetailsDTO = try await response(for: request)
+
+        return response.toDomain(
+            backdropImageBaseURL: configuration.backdropImageBaseURL
         )
     }
 
@@ -86,12 +109,12 @@ actor TMDBMovieCatalogService: MovieCatalogService {
             throw MovieCatalogError.missingAccessToken
         }
 
-        let endpointURL = configuration.baseURL.appending(path: endpoint.rawValue)
+        let endpointURL = configuration.baseURL.appending(path: endpoint.path)
         guard var components = URLComponents(
             url: endpointURL,
             resolvingAgainstBaseURL: false
         ) else {
-            log("Error: could not create URL components for \(endpoint.rawValue)")
+            log("Error: could not create URL components for \(endpoint.path)")
             throw MovieCatalogError.invalidRequest
         }
 
@@ -100,7 +123,7 @@ actor TMDBMovieCatalogService: MovieCatalogService {
         ]
 
         guard let url = components.url else {
-            log("Error: could not create URL for \(endpoint.rawValue)")
+            log("Error: could not create URL for \(endpoint.path)")
             throw MovieCatalogError.invalidRequest
         }
 
