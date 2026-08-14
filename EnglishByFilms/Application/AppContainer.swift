@@ -29,10 +29,15 @@ final class AppContainer {
         self.subtitleService = subtitleService
     }
 
-    func makeSearchModule() -> some View {
+    func makeSearchModule(router: SearchRouter) -> some View {
         SearchModuleBuilder.build(
+            router: router,
             movieCatalogService: movieCatalogService,
             subtitleService: subtitleService
         )
+    }
+
+    func makeMovieModule(movieID: Int) -> some View {
+        MovieModuleBuilder.build(movieID: movieID)
     }
 }

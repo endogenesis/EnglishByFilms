@@ -17,11 +17,9 @@ struct RootTabView: View {
 
     var body: some View {
         TabView(selection: $coordinator.selectedTab) {
-            coordinator.makeSearchModule()
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                .tag(AppTab.search)
+            Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
+                coordinator.makeSearchTab()
+            }
         }
         .preferredColorScheme(.dark)
     }

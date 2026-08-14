@@ -13,13 +13,15 @@ import SwiftUI
 final class AppCoordinator {
     var selectedTab: AppTab = .search
 
+    let searchRouter = SearchRouter()
+
     private let container: AppContainer
 
     init(container: AppContainer) {
         self.container = container
     }
 
-    func makeSearchModule() -> some View {
-        container.makeSearchModule()
+    func makeSearchTab() -> some View {
+        SearchTabView(router: searchRouter, container: container)
     }
 }

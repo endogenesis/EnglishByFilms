@@ -39,6 +39,10 @@ final class SearchViewModel {
         self.subtitleService = subtitleService
     }
 
+    func showMovie(_ movie: MovieSummary) {
+        router.showMovie(id: movie.id)
+    }
+
     func loadMovies() async {
         let requestedQuery = searchQuery
         paginationContext = nil

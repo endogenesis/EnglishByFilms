@@ -8,39 +8,32 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State private var router: SearchRouter
     @State private var viewModel: SearchViewModel
 
-    init(
-        router: SearchRouter,
-        viewModel: SearchViewModel
-    ) {
-        _router = State(initialValue: router)
+    init(viewModel: SearchViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
     var body: some View {
-        NavigationStack(path: $router.path) {
-            content
-                .task(id: viewModel.searchQuery) {
-                    if !viewModel.searchQuery.isEmpty {
-                        do {
-                            try await Task.sleep(for: .milliseconds(350))
-                        } catch {
-                            return
-                        }
+        content
+            .task(id: viewModel.searchQuery) {
+                if !viewModel.searchQuery.isEmpty {
+                    do {
+                        try await Task.sleep(for: .milliseconds(350))
+                    } catch {
+                        return
                     }
-
-                    await viewModel.loadMovies()
                 }
-                .navigationTitle("Search")
-                .navigationBarTitleDisplayMode(.large)
-                .searchable(
-                    text: $viewModel.query,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "Search movies"
-                )
-        }
+
+                await viewModel.loadMovies()
+            }
+            .navigationTitle("Search")
+            .navigationBarTitleDisplayMode(.large)
+            .searchable(
+                text: $viewModel.query,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search movies"
+            )
     }
 
     @ViewBuilder
@@ -55,9 +48,7 @@ struct SearchView: View {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(movies) { movie in
                         Button {
-                            Task {
-                                await viewModel.downloadBestEnglishSubtitle(for: movie)
-                            }
+                            viewModel.showMovie(movie)
                         } label: {
                             VStack(spacing: 0) {
                                 SearchMovieRow(movie: movie)
@@ -66,8 +57,7 @@ struct SearchView: View {
                                 Rectangle()
                                     .fill(Color.white.opacity(0.06))
                                     .frame(height: 1)
-                                    .padding(.leading, 72)
-                                    .padding(.bottom, 15)
+                                    .padding(EdgeInsets(top: 0, leading: 72, bottom: 15, trailing: 0))
                             }
 
                         }
@@ -108,8 +98,11 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchModuleBuilder.build(
-        movieCatalogService: PreviewMovieCatalogService(),
-        subtitleService: PreviewSubtitleService()
+    SearchTabView(
+        router: SearchRouter(),
+        container: AppContainer(
+            movieCatalogService: PreviewMovieCatalogService(),
+            subtitleService: PreviewSubtitleService()
+        )
     )
 }

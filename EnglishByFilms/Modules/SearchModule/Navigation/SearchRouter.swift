@@ -6,14 +6,13 @@
 //
 
 import Observation
-import SwiftUI
 
 @MainActor
 @Observable
 final class SearchRouter {
-    var path = NavigationPath()
+    var path: [SearchRoute] = []
 
-    func popToRoot() {
-        path = NavigationPath()
+    func showMovie(id: Int) {
+        path.append(.movie(id: id))
     }
 }
