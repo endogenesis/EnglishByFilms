@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DownloadedSubtitle: Equatable {
+nonisolated struct DownloadedSubtitle: Equatable {
     let fileName: String
     let data: Data
     let remainingDownloads: Int
