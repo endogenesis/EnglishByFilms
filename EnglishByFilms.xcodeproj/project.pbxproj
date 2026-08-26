@@ -10,14 +10,30 @@
 		E5F10001348C000100000001 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = E5F10001348C000100000003 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		E5AB10FE0000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E58013CD3023DC9F00F1B1E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E58013D43023DC9F00F1B1E2;
+			remoteInfo = EnglishByFilms;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		E58013D53023DC9F00F1B1E2 /* EnglishByFilms.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EnglishByFilms.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5AB10FE0000000000000002 /* EnglishByFilmsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EnglishByFilmsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E58013D73023DC9F00F1B1E2 /* EnglishByFilms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = EnglishByFilms;
+			sourceTree = "<group>";
+		};
+		E5AB10FE0000000000000003 /* EnglishByFilmsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EnglishByFilmsTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +47,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E5AB10FE0000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -38,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				E58013D73023DC9F00F1B1E2 /* EnglishByFilms */,
+				E5AB10FE0000000000000003 /* EnglishByFilmsTests */,
 				E58013D63023DC9F00F1B1E2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				E58013D53023DC9F00F1B1E2 /* EnglishByFilms.app */,
+				E5AB10FE0000000000000002 /* EnglishByFilmsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,6 +101,29 @@
 			productReference = E58013D53023DC9F00F1B1E2 /* EnglishByFilms.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E5AB10FE0000000000000001 /* EnglishByFilmsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E5AB10FE000000000000000B /* Build configuration list for PBXNativeTarget "EnglishByFilmsTests" */;
+			buildPhases = (
+				E5AB10FE0000000000000004 /* Sources */,
+				E5AB10FE0000000000000005 /* Frameworks */,
+				E5AB10FE0000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E5AB10FE0000000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E5AB10FE0000000000000003 /* EnglishByFilmsTests */,
+			);
+			name = EnglishByFilmsTests;
+			packageProductDependencies = (
+			);
+			productName = EnglishByFilmsTests;
+			productReference = E5AB10FE0000000000000002 /* EnglishByFilmsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -88,6 +136,10 @@
 				TargetAttributes = {
 					E58013D43023DC9F00F1B1E2 = {
 						CreatedOnToolsVersion = 26.5;
+					};
+					E5AB10FE0000000000000001 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = E58013D43023DC9F00F1B1E2;
 					};
 				};
 			};
@@ -109,12 +161,20 @@
 			projectRoot = "";
 			targets = (
 				E58013D43023DC9F00F1B1E2 /* EnglishByFilms */,
+				E5AB10FE0000000000000001 /* EnglishByFilmsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E58013D33023DC9F00F1B1E2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E5AB10FE0000000000000006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -131,7 +191,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E5AB10FE0000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E5AB10FE0000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E58013D43023DC9F00F1B1E2 /* EnglishByFilms */;
+			targetProxy = E5AB10FE0000000000000007 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E58013E33023DCA100F1B1E2 /* Debug */ = {
@@ -319,6 +394,46 @@
 			};
 			name = Release;
 		};
+		E5AB10FE0000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P9MFM7M9JB;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = mt.EnglishByFilmsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EnglishByFilms.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EnglishByFilms";
+			};
+			name = Debug;
+		};
+		E5AB10FE000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P9MFM7M9JB;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = mt.EnglishByFilmsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EnglishByFilms.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EnglishByFilms";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -336,6 +451,15 @@
 			buildConfigurations = (
 				E58013E63023DCA100F1B1E2 /* Debug */,
 				E58013E73023DCA100F1B1E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E5AB10FE000000000000000B /* Build configuration list for PBXNativeTarget "EnglishByFilmsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E5AB10FE0000000000000009 /* Debug */,
+				E5AB10FE000000000000000A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

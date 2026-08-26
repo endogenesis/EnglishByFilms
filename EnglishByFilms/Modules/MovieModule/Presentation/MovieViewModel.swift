@@ -18,6 +18,7 @@ final class MovieViewModel {
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService
     private let subtitleParser: SRTSubtitleParser
+    private let minimumSubtitlePreparationDuration: Duration
     private let subtitleSelector = SubtitleSelector()
     private var subtitleDocument: SubtitleDocument?
 
@@ -26,13 +27,15 @@ final class MovieViewModel {
         router: MovieRouter,
         movieCatalogService: MovieCatalogService,
         subtitleService: SubtitleService,
-        subtitleParser: SRTSubtitleParser
+        subtitleParser: SRTSubtitleParser,
+        minimumSubtitlePreparationDuration: Duration = .seconds(20)
     ) {
         self.movieID = movieID
         self.router = router
         self.movieCatalogService = movieCatalogService
         self.subtitleService = subtitleService
         self.subtitleParser = subtitleParser
+        self.minimumSubtitlePreparationDuration = minimumSubtitlePreparationDuration
     }
 
     func loadMovie() async {
@@ -81,7 +84,7 @@ final class MovieViewModel {
 
         subtitlePreparationState = .findingSubtitle
         subtitleDocument = nil
-        let displayDeadline = ContinuousClock.now.advanced(by: .seconds(20))
+        let displayDeadline = ContinuousClock.now.advanced(by: minimumSubtitlePreparationDuration)
 
         do {
             let page = try await subtitleService.searchEnglishSubtitles(
