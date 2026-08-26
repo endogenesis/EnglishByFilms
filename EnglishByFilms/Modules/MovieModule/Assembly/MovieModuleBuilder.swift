@@ -7,8 +7,14 @@
 
 enum MovieModuleBuilder {
     @MainActor
-    static func build(movieID: Int) -> MovieView {
-        let viewModel = MovieViewModel(movieID: movieID)
+    static func build(
+        movieID: Int,
+        movieCatalogService: MovieCatalogService
+    ) -> MovieView {
+        let viewModel = MovieViewModel(
+            movieID: movieID,
+            movieCatalogService: movieCatalogService
+        )
 
         return MovieView(viewModel: viewModel)
     }

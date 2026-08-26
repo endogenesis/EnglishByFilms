@@ -25,15 +25,11 @@ struct SearchView: View {
                     }
                 }
 
-                await viewModel.loadMovies()
+                await viewModel.loadMoviesIfNeeded()
             }
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.large)
-            .searchable(
-                text: $viewModel.query,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search movies"
-            )
+            .searchable(text: $viewModel.query, prompt: "Search movies")
     }
 
     @ViewBuilder

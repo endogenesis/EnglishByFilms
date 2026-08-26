@@ -16,33 +16,49 @@ struct MovieView: View {
 
     var body: some View {
         content
-            .navigationTitle("Movie")
+            .task {
+                await viewModel.loadMovie()
+            }
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .tint(.white)
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.state {
-        case let .placeholder(movieID):
-            VStack(spacing: 12) {
-                Image(systemName: "film")
-                    .font(.system(size: 44))
-                    .foregroundStyle(.secondary)
-
-                Text("Movie details")
-                    .font(.title2.weight(.semibold))
-
-                Text("TMDB ID: \(movieID)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        case .loading:
+            ProgressView("Loading movie…")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.backgroundBase)
+        case let .loaded(movie):
+            MovieLoadedView(movie: movie)
+        case let .failed(message):
+            ContentUnavailableView {
+                Label("Couldn’t load movie", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text(message)
+            } actions: {
+                Button("Try again", action: retry)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.backgroundBase)
+        }
+    }
+
+    private func retry() {
+        Task {
+            await viewModel.retry()
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        MovieModuleBuilder.build(movieID: 550)
+        MovieModuleBuilder.build(
+            movieID: 603,
+            movieCatalogService: PreviewMovieCatalogService()
+        )
     }
 }

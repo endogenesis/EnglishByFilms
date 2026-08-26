@@ -43,36 +43,14 @@ final class SearchViewModel {
         router.showMovie(id: movie.id)
     }
 
-    func loadMovies() async {
+    func loadMoviesIfNeeded() async {
         let requestedQuery = searchQuery
-        paginationContext = nil
-        state = .loading
 
-        do {
-            let page = try await loadPage(number: 1, query: requestedQuery)
-
-            guard !page.movies.isEmpty else {
-                state = .empty(query: requestedQuery)
-                return
-            }
-
-            paginationContext = PaginationContext(
-                query: requestedQuery,
-                currentPage: page.currentPage,
-                totalPages: page.totalPages
-            )
-            state = .loaded(
-                movies: page.movies,
-                nextPage: nextPageState(for: page)
-            )
-        } catch is CancellationError {
+        guard !hasResult(for: requestedQuery) else {
             return
-        } catch let error as URLError where error.code == .cancelled {
-            return
-        } catch {
-            paginationContext = nil
-            state = .failed(message: error.localizedDescription)
         }
+
+        await loadMovies(query: requestedQuery)
     }
 
     func loadNextPage() async {
@@ -150,11 +128,53 @@ final class SearchViewModel {
 
     // MARK: - Private
 
+    private func loadMovies(query requestedQuery: String) async {
+        paginationContext = nil
+        state = .loading
+
+        do {
+            let page = try await loadPage(number: 1, query: requestedQuery)
+
+            guard !page.movies.isEmpty else {
+                state = .empty(query: requestedQuery)
+                return
+            }
+
+            paginationContext = PaginationContext(
+                query: requestedQuery,
+                currentPage: page.currentPage,
+                totalPages: page.totalPages
+            )
+            state = .loaded(
+                movies: page.movies,
+                nextPage: nextPageState(for: page)
+            )
+        } catch is CancellationError {
+            return
+        } catch let error as URLError where error.code == .cancelled {
+            return
+        } catch {
+            paginationContext = nil
+            state = .failed(message: error.localizedDescription)
+        }
+    }
+
     private func loadPage(number: Int, query: String) async throws -> MoviePage {
         if query.isEmpty {
             try await movieCatalogService.popularMovies(page: number)
         } else {
             try await movieCatalogService.searchMovies(query: query, page: number)
+        }
+    }
+
+    private func hasResult(for query: String) -> Bool {
+        switch state {
+        case .loaded:
+            paginationContext?.query == query
+        case .empty(let loadedQuery):
+            loadedQuery == query
+        case .idle, .loading, .failed:
+            false
         }
     }
 

@@ -38,6 +38,9 @@ final class AppContainer {
     }
 
     func makeMovieModule(movieID: Int) -> some View {
-        MovieModuleBuilder.build(movieID: movieID)
+        MovieModuleBuilder.build(
+            movieID: movieID,
+            movieCatalogService: movieCatalogService
+        )
     }
 }

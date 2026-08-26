@@ -6,5 +6,7 @@
 //
 
 enum MovieViewState: Equatable {
-    case placeholder(movieID: Int)
+    case loading
+    case loaded(MovieDetails)
+    case failed(message: String)
 }
