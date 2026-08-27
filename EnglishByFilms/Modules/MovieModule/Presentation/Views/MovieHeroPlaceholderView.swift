@@ -25,9 +25,6 @@ struct MovieHeroPlaceholderView: View {
                 .frame(width: 220, height: 220)
                 .blur(radius: 50)
                 .offset(x: 120, y: 70)
-
-            .foregroundStyle(.white.opacity(0.9))
-            .padding(.horizontal, 48)
         }
         .clipped()
     }

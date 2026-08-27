@@ -41,7 +41,9 @@ struct MovieInformationView: View {
         components.append(contentsOf: movie.genres)
 
         if let runtimeMinutes = movie.runtimeMinutes {
-            components.append(formattedRuntime(runtimeMinutes))
+            let runtime = Duration.seconds(runtimeMinutes * 60)
+                .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
+            components.append(runtime)
         }
 
         if movie.rating > 0 {
@@ -50,20 +52,6 @@ struct MovieInformationView: View {
         }
 
         return components.joined(separator: " · ")
-    }
-
-    private func formattedRuntime(_ minutes: Int) -> String {
-        let hours = minutes / 60
-        let remainingMinutes = minutes % 60
-
-        switch (hours, remainingMinutes) {
-        case (0, let minutes):
-            return "\(minutes)m"
-        case (let hours, 0):
-            return "\(hours)h"
-        case let (hours, minutes):
-            return "\(hours)h \(minutes)m"
-        }
     }
 }
 
