@@ -18,10 +18,7 @@ final class SearchViewModel {
 
     private let router: SearchRouter
     private let movieCatalogService: MovieCatalogService
-    private let subtitleService: SubtitleService
-    private let subtitleSelector = SubtitleSelector()
     private var paginationContext: PaginationContext?
-    private var isDownloadingSubtitle = false
 
     private struct PaginationContext {
         let query: String
@@ -31,12 +28,10 @@ final class SearchViewModel {
 
     init(
         router: SearchRouter,
-        movieCatalogService: MovieCatalogService,
-        subtitleService: SubtitleService
+        movieCatalogService: MovieCatalogService
     ) {
         self.router = router
         self.movieCatalogService = movieCatalogService
-        self.subtitleService = subtitleService
     }
 
     func showMovie(_ movie: MovieSummary) {
@@ -85,44 +80,6 @@ final class SearchViewModel {
                 movies: movies,
                 nextPage: .failed(message: error.localizedDescription)
             )
-        }
-    }
-
-    func downloadBestEnglishSubtitle(for movie: MovieSummary) async {
-        guard !isDownloadingSubtitle else {
-            log("Ignoring tap while another subtitle download is in progress")
-            return
-        }
-
-        isDownloadingSubtitle = true
-        defer { isDownloadingSubtitle = false }
-
-        log("Looking for English subtitles for \(movie.title), TMDB ID \(movie.id)")
-
-        do {
-            let page = try await subtitleService.searchEnglishSubtitles(
-                tmdbMovieID: movie.id,
-                page: 1
-            )
-
-            guard let subtitle = subtitleSelector.selectBest(from: page.subtitles) else {
-                log("No supported single-file English subtitles found for \(movie.title)")
-                return
-            }
-
-            log("Selector chose \(subtitle.fileName), fileID \(subtitle.fileID)")
-            log(
-                "Selection metrics: trusted=\(subtitle.fromTrustedSource), "
-                    + "hearingImpaired=\(subtitle.hearingImpaired), "
-                    + "newDownloads=\(subtitle.newDownloadCount)"
-            )
-            _ = try await subtitleService.downloadSubtitle(fileID: subtitle.fileID)
-        } catch is CancellationError {
-            return
-        } catch let error as URLError where error.code == .cancelled {
-            return
-        } catch {
-            log("Subtitle flow failed for \(movie.title): \(error.localizedDescription)")
         }
     }
 
@@ -189,11 +146,5 @@ final class SearchViewModel {
         var movieIDs = Set(movies.map(\.id))
         let uniqueMovies = newMovies.filter { movieIDs.insert($0.id).inserted }
         return movies + uniqueMovies
-    }
-
-    private func log(_ message: String) {
-#if DEBUG
-        print("[Search] \(message)")
-#endif
     }
 }

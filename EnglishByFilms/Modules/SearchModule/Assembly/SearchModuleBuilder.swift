@@ -9,13 +9,11 @@ enum SearchModuleBuilder {
     @MainActor
     static func build(
         router: SearchRouter,
-        movieCatalogService: MovieCatalogService,
-        subtitleService: SubtitleService
+        movieCatalogService: MovieCatalogService
     ) -> SearchView {
         let viewModel = SearchViewModel(
             router: router,
-            movieCatalogService: movieCatalogService,
-            subtitleService: subtitleService
+            movieCatalogService: movieCatalogService
         )
 
         return SearchView(viewModel: viewModel)

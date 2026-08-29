@@ -32,15 +32,15 @@ final class AppContainer {
     func makeSearchModule(router: SearchRouter) -> some View {
         SearchModuleBuilder.build(
             router: router,
-            movieCatalogService: movieCatalogService,
-            subtitleService: subtitleService
+            movieCatalogService: movieCatalogService
         )
     }
 
     func makeMovieModule(movieID: Int) -> some View {
         MovieModuleBuilder.build(
             movieID: movieID,
-            movieCatalogService: movieCatalogService
+            movieCatalogService: movieCatalogService,
+            subtitleService: subtitleService
         )
     }
 }

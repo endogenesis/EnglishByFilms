@@ -29,7 +29,11 @@ struct SearchView: View {
             }
             .navigationTitle("Search")
             .navigationBarTitleDisplayMode(.large)
-            .searchable(text: $viewModel.query, prompt: "Search movies")
+            .searchable(
+                text: $viewModel.query,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: "Search movies"
+            )
     }
 
     @ViewBuilder

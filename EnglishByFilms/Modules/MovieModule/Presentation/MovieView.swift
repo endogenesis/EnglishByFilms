@@ -33,7 +33,11 @@ struct MovieView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.backgroundBase)
         case let .loaded(movie):
-            MovieLoadedView(movie: movie)
+            MovieLoadedView(
+                movie: movie,
+                lessonPreparationState: viewModel.lessonPreparationState,
+                startLearning: startLearning
+            )
         case let .failed(message):
             ContentUnavailableView {
                 Label("Couldn’t load movie", systemImage: "exclamationmark.triangle")
@@ -52,13 +56,20 @@ struct MovieView: View {
             await viewModel.retry()
         }
     }
+
+    private func startLearning() {
+        Task {
+            await viewModel.prepareLesson()
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
         MovieModuleBuilder.build(
             movieID: 603,
-            movieCatalogService: PreviewMovieCatalogService()
+            movieCatalogService: PreviewMovieCatalogService(),
+            subtitleService: PreviewSubtitleService()
         )
     }
 }

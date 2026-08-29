@@ -9,6 +9,8 @@ import SwiftUI
 
 struct MovieLoadedView: View {
     let movie: MovieDetails
+    let lessonPreparationState: MovieLessonPreparationState
+    let startLearning: () -> Void
 
     var body: some View {
         ScrollView {
@@ -32,9 +34,10 @@ struct MovieLoadedView: View {
         .background(.backgroundBase)
         .ignoresSafeArea(edges: .top)
         .safeAreaInset(edge: .bottom) {
-            PrimaryButton("Start learning") { }
-                .disabled(true)
-                .accessibilityHint("Lesson generation will be added in the next step")
+            MovieLessonActionView(
+                state: lessonPreparationState,
+                action: startLearning
+            )
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
                 .background(.backgroundBase.opacity(0.94))
@@ -53,7 +56,9 @@ struct MovieLoadedView: View {
             backdropURL: nil,
             rating: 8.2,
             genres: ["Action", "Science Fiction"]
-        )
+        ),
+        lessonPreparationState: .idle,
+        startLearning: { }
     )
     .preferredColorScheme(.dark)
 }
