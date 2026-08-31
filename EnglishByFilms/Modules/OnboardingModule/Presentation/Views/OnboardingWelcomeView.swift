@@ -16,19 +16,19 @@ struct OnboardingWelcomeView: View {
             OnboardingPosterCollageView()
                 .padding(.top, 8)
 
+            Spacer(minLength: 32)
+
             VStack(alignment: .leading, spacing: 0) {
                 Text("Learn English from movies you love")
                     .font(.largeTitle.bold())
-                    .padding(.top, 40)
 
                 Text("Watch anywhere. Then open Replay — we turn the subtitles into 10-minute lessons with real phrases.")
                     .font(.callout)
                     .foregroundStyle(.textSecondary)
                     .padding(.top, 16)
 
-                Spacer(minLength: 32)
-
                 PrimaryButton("Get started", action: getStarted)
+                    .padding(.top, 64)
 
                 Button("I already have an account", action: skip)
                     .font(.subheadline.weight(.semibold))

@@ -28,7 +28,7 @@ struct OnboardingPosterCollageView: View {
         .overlay(
             LinearGradient(
                 stops: [
-                    .init(color: .clear, location: 0.4),
+                    .init(color: .clear, location: 0.3),
                     .init(color: .backgroundBase, location: 1)
                 ],
                 startPoint: .top,
