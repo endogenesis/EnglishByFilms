@@ -16,7 +16,7 @@ struct EnglishByFilmsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootTabView(coordinator: coordinator)
+            RootView(coordinator: coordinator)
         }
     }
 }

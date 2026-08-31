@@ -30,7 +30,8 @@ struct RootTabView: View {
         coordinator: AppCoordinator(
             container: AppContainer(
                 movieCatalogService: PreviewMovieCatalogService(),
-                subtitleService: PreviewSubtitleService()
+                subtitleService: PreviewSubtitleService(),
+                userPreferencesStore: PreviewUserPreferencesStore()
             )
         )
     )

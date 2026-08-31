@@ -12,6 +12,7 @@ import SwiftUI
 @Observable
 final class AppCoordinator {
     var selectedTab: AppTab = .search
+    private(set) var isOnboardingCompleted: Bool
 
     let searchRouter = SearchRouter()
 
@@ -19,6 +20,13 @@ final class AppCoordinator {
 
     init(container: AppContainer) {
         self.container = container
+        isOnboardingCompleted = container.userPreferencesStore.isOnboardingCompleted
+    }
+
+    func makeOnboardingModule() -> some View {
+        container.makeOnboardingModule { [weak self] in
+            self?.isOnboardingCompleted = true
+        }
     }
 
     func makeSearchTab() -> some View {

@@ -39,7 +39,8 @@ struct SearchTabView: View {
         router: SearchRouter(),
         container: AppContainer(
             movieCatalogService: PreviewMovieCatalogService(),
-            subtitleService: PreviewSubtitleService()
+            subtitleService: PreviewSubtitleService(),
+            userPreferencesStore: PreviewUserPreferencesStore()
         )
     )
 }

@@ -9,6 +9,8 @@ import SwiftUI
 
 @MainActor
 final class AppContainer {
+    let userPreferencesStore: UserPreferencesStore
+
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService
     private let subtitleParser: SRTSubtitleParser
@@ -21,16 +23,26 @@ final class AppContainer {
             configuration: .live()
         )
         subtitleParser = SRTSubtitleParser()
+        userPreferencesStore = UserDefaultsUserPreferencesStore()
     }
 
     init(
         movieCatalogService: MovieCatalogService,
         subtitleService: SubtitleService,
-        subtitleParser: SRTSubtitleParser = SRTSubtitleParser()
+        subtitleParser: SRTSubtitleParser = SRTSubtitleParser(),
+        userPreferencesStore: UserPreferencesStore
     ) {
         self.movieCatalogService = movieCatalogService
         self.subtitleService = subtitleService
         self.subtitleParser = subtitleParser
+        self.userPreferencesStore = userPreferencesStore
+    }
+
+    func makeOnboardingModule(onFinish: @escaping () -> Void) -> some View {
+        OnboardingModuleBuilder.build(
+            userPreferencesStore: userPreferencesStore,
+            onFinish: onFinish
+        )
     }
 
     func makeSearchModule(router: SearchRouter) -> some View {
