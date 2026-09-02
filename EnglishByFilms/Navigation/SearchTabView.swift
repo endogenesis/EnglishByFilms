@@ -22,7 +22,12 @@ struct SearchTabView: View {
                 .navigationDestination(for: SearchRoute.self) { route in
                     switch route {
                     case let .movie(id):
-                        container.makeMovieModule(movieID: id)
+                        container.makeMovieModule(movieID: id, searchRouter: router)
+                    case let .subtitles(route):
+                        container.makeSubtitleModule(
+                            movieTitle: route.movieTitle,
+                            subtitles: route.subtitles
+                        )
                     }
                 }
         }

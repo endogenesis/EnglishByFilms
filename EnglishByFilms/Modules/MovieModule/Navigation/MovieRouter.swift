@@ -6,4 +6,14 @@
 //
 
 @MainActor
-final class MovieRouter {}
+final class MovieRouter {
+    private let searchRouter: SearchRouter
+
+    init(searchRouter: SearchRouter) {
+        self.searchRouter = searchRouter
+    }
+
+    func showSubtitles(movieTitle: String, subtitles: SubtitleDocument) {
+        searchRouter.showSubtitles(movieTitle: movieTitle, subtitles: subtitles)
+    }
+}

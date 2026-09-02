@@ -35,9 +35,27 @@ struct PreviewSubtitleService: SubtitleService {
     func downloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
         DownloadedSubtitle(
             fileName: subtitle.fileName,
-            data: Data(),
+            data: Data(Self.previewSRT.utf8),
             remainingDownloads: 4,
             quotaResetDate: nil
         )
     }
+
+    private static let previewSRT = """
+    1
+    00:26:34,000 --> 00:26:37,200
+    I imagine you're feeling a bit like Alice.
+
+    2
+    00:26:37,600 --> 00:26:39,400
+    Tumbling down the rabbit hole?
+
+    3
+    00:26:39,800 --> 00:26:41,200
+    Hm. You could say that.
+
+    4
+    00:26:41,900 --> 00:26:44,000
+    Do you believe in fate, Neo?
+    """
 }

@@ -35,8 +35,8 @@ struct MovieView: View {
         case let .loaded(movie):
             MovieLoadedView(
                 movie: movie,
-                lessonPreparationState: viewModel.lessonPreparationState,
-                startLearning: startLearning
+                subtitlePreparationState: viewModel.subtitlePreparationState,
+                openSubtitles: openSubtitles
             )
         case let .failed(message):
             ContentUnavailableView {
@@ -57,9 +57,9 @@ struct MovieView: View {
         }
     }
 
-    private func startLearning() {
+    private func openSubtitles() {
         Task {
-            await viewModel.prepareLesson()
+            await viewModel.prepareSubtitles()
         }
     }
 }
@@ -68,8 +68,10 @@ struct MovieView: View {
     NavigationStack {
         MovieModuleBuilder.build(
             movieID: 603,
+            router: MovieRouter(searchRouter: SearchRouter()),
             movieCatalogService: PreviewMovieCatalogService(),
-            subtitleService: PreviewSubtitleService()
+            subtitleService: PreviewSubtitleService(),
+            subtitleParser: SRTSubtitleParser()
         )
     }
 }

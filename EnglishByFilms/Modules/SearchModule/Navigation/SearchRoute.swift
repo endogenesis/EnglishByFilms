@@ -7,4 +7,5 @@
 
 enum SearchRoute: Hashable {
     case movie(id: Int)
+    case subtitles(SubtitleRoute)
 }

@@ -9,8 +9,8 @@ import SwiftUI
 
 struct MovieLoadedView: View {
     let movie: MovieDetails
-    let lessonPreparationState: MovieLessonPreparationState
-    let startLearning: () -> Void
+    let subtitlePreparationState: MovieSubtitlePreparationState
+    let openSubtitles: () -> Void
 
     var body: some View {
         ScrollView {
@@ -34,13 +34,13 @@ struct MovieLoadedView: View {
         .background(.backgroundBase)
         .ignoresSafeArea(edges: .top)
         .safeAreaInset(edge: .bottom) {
-            MovieLessonActionView(
-                state: lessonPreparationState,
-                action: startLearning
+            MovieSubtitleActionView(
+                state: subtitlePreparationState,
+                action: openSubtitles
             )
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(.backgroundBase.opacity(0.94))
+            .padding(.horizontal, 24)
+            .padding(.vertical, 12)
+            .background(.backgroundBase.opacity(0.94))
         }
     }
 }
@@ -57,8 +57,8 @@ struct MovieLoadedView: View {
             rating: 8.2,
             genres: ["Action", "Science Fiction"]
         ),
-        lessonPreparationState: .idle,
-        startLearning: { }
+        subtitlePreparationState: .idle,
+        openSubtitles: { }
     )
     .preferredColorScheme(.dark)
 }

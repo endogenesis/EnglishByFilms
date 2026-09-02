@@ -11,6 +11,7 @@ import SwiftUI
 final class AppContainer {
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService
+    private let subtitleParser: SRTSubtitleParser
 
     init() {
         movieCatalogService = TMDBMovieCatalogService(
@@ -19,14 +20,17 @@ final class AppContainer {
         subtitleService = OpenSubtitlesService(
             configuration: .live()
         )
+        subtitleParser = SRTSubtitleParser()
     }
 
     init(
         movieCatalogService: MovieCatalogService,
-        subtitleService: SubtitleService
+        subtitleService: SubtitleService,
+        subtitleParser: SRTSubtitleParser = SRTSubtitleParser()
     ) {
         self.movieCatalogService = movieCatalogService
         self.subtitleService = subtitleService
+        self.subtitleParser = subtitleParser
     }
 
     func makeSearchModule(router: SearchRouter) -> some View {
@@ -36,11 +40,17 @@ final class AppContainer {
         )
     }
 
-    func makeMovieModule(movieID: Int) -> some View {
+    func makeMovieModule(movieID: Int, searchRouter: SearchRouter) -> some View {
         MovieModuleBuilder.build(
             movieID: movieID,
+            router: MovieRouter(searchRouter: searchRouter),
             movieCatalogService: movieCatalogService,
-            subtitleService: subtitleService
+            subtitleService: subtitleService,
+            subtitleParser: subtitleParser
         )
+    }
+
+    func makeSubtitleModule(movieTitle: String, subtitles: SubtitleDocument) -> some View {
+        SubtitleModuleBuilder.build(movieTitle: movieTitle, subtitles: subtitles)
     }
 }

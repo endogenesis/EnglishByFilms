@@ -1,11 +1,11 @@
 //
-//  MovieLessonPreparationState.swift
+//  MovieSubtitlePreparationState.swift
 //  EnglishByFilms
 //
 //  Created by Mikalai Tsyhankou on 21/08/2026.
 //
 
-enum MovieLessonPreparationState: Equatable {
+enum MovieSubtitlePreparationState: Equatable {
     case idle
     case findingSubtitle
     case downloadingSubtitle

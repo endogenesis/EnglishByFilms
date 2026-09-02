@@ -9,13 +9,17 @@ enum MovieModuleBuilder {
     @MainActor
     static func build(
         movieID: Int,
+        router: MovieRouter,
         movieCatalogService: MovieCatalogService,
-        subtitleService: SubtitleService
+        subtitleService: SubtitleService,
+        subtitleParser: SRTSubtitleParser
     ) -> MovieView {
         let viewModel = MovieViewModel(
             movieID: movieID,
+            router: router,
             movieCatalogService: movieCatalogService,
-            subtitleService: subtitleService
+            subtitleService: subtitleService,
+            subtitleParser: subtitleParser
         )
 
         return MovieView(viewModel: viewModel)

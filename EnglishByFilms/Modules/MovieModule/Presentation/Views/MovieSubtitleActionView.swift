@@ -1,5 +1,5 @@
 //
-//  MovieLessonActionView.swift
+//  MovieSubtitleActionView.swift
 //  EnglishByFilms
 //
 //  Created by Mikalai Tsyhankou on 21/08/2026.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct MovieLessonActionView: View {
-    let state: MovieLessonPreparationState
+struct MovieSubtitleActionView: View {
+    let state: MovieSubtitlePreparationState
     let action: () -> Void
 
     var body: some View {
@@ -36,13 +36,13 @@ struct MovieLessonActionView: View {
     private var title: String {
         switch state {
         case .idle:
-            "Start learning"
+            "Open subtitles"
         case .findingSubtitle:
             "Finding subtitles…"
         case .downloadingSubtitle:
             "Downloading subtitles…"
         case .subtitleReady:
-            "Subtitles downloaded"
+            "Open subtitles"
         case .failed:
             "Try again"
         }
@@ -50,9 +50,9 @@ struct MovieLessonActionView: View {
 
     private var isButtonEnabled: Bool {
         switch state {
-        case .idle, .failed:
+        case .idle, .subtitleReady, .failed:
             true
-        case .findingSubtitle, .downloadingSubtitle, .subtitleReady:
+        case .findingSubtitle, .downloadingSubtitle:
             false
         }
     }
@@ -77,9 +77,9 @@ struct MovieLessonActionView: View {
 
 #Preview {
     VStack(spacing: 24) {
-        MovieLessonActionView(state: .idle, action: { })
-        MovieLessonActionView(state: .findingSubtitle, action: { })
-        MovieLessonActionView(
+        MovieSubtitleActionView(state: .idle, action: { })
+        MovieSubtitleActionView(state: .findingSubtitle, action: { })
+        MovieSubtitleActionView(
             state: .failed(message: "No supported English subtitles were found."),
             action: { }
         )

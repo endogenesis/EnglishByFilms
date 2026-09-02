@@ -15,4 +15,12 @@ final class SearchRouter {
     func showMovie(id: Int) {
         path.append(.movie(id: id))
     }
+
+    func showSubtitles(movieTitle: String, subtitles: SubtitleDocument) {
+        path.append(
+            .subtitles(
+                SubtitleRoute(movieTitle: movieTitle, subtitles: subtitles)
+            )
+        )
+    }
 }
