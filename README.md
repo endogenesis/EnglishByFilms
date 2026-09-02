@@ -23,5 +23,7 @@ in the context in which they are actually used.
 Replay is built with SwiftUI using a modular MVVM architecture, Observation for UI state,
 Swift Concurrency for asynchronous workflows, state-driven navigation, and dependency
 injection. Movie and subtitle data are provided by TMDB and OpenSubtitles.
+Lesson generation is designed to run on device using Apple Foundation Models, local subtitle
+processing, and system translation.
 
 <sub>Artwork shown in this README was AI-generated for this project.</sub>
