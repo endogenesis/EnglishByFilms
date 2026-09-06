@@ -8,7 +8,6 @@
 import Foundation
 import Observation
 
-@MainActor
 @Observable
 final class MovieViewModel {
     private(set) var state: MovieViewState = .loading
@@ -47,6 +46,20 @@ final class MovieViewModel {
     func retry() async {
         state = .loading
         await fetchMovie()
+    }
+
+    private func fetchMovie() async {
+        do {
+            let movie = try await movieCatalogService.movieDetails(id: movieID)
+            try Task.checkCancellation()
+            state = .loaded(movie)
+        } catch is CancellationError {
+            return
+        } catch let error as URLError where error.code == .cancelled {
+            return
+        } catch {
+            state = .failed(message: error.localizedDescription)
+        }
     }
 
     func prepareSubtitles() async {
@@ -102,20 +115,6 @@ final class MovieViewModel {
             subtitlePreparationState = .idle
         } catch {
             subtitlePreparationState = .failed(message: error.localizedDescription)
-        }
-    }
-
-    private func fetchMovie() async {
-        do {
-            let movie = try await movieCatalogService.movieDetails(id: movieID)
-            try Task.checkCancellation()
-            state = .loaded(movie)
-        } catch is CancellationError {
-            return
-        } catch let error as URLError where error.code == .cancelled {
-            return
-        } catch {
-            state = .failed(message: error.localizedDescription)
         }
     }
 }
