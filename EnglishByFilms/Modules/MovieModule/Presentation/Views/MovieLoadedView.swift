@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MovieLoadedView: View {
+    @State private var scrollPosition = ScrollPosition(edge: .top)
+
     let movie: MovieDetails
     let subtitlePreparationState: MovieSubtitlePreparationState
     let openSubtitles: () -> Void
@@ -27,8 +29,16 @@ struct MovieLoadedView: View {
                     .padding(.horizontal, 24)
                     .padding(.top, 12)
                     .padding(.bottom, 24)
+
+                if subtitlePreparationState.isPreparing {
+                    MovieSubtitlePreparationView(state: subtitlePreparationState)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                        .onAppear(perform: revealPreparation)
+                }
             }
         }
+        .scrollPosition($scrollPosition)
         .scrollEdgeEffectHidden(true, for: .top)
         .scrollBounceBehavior(.always, axes: .vertical)
         .background(.backgroundBase)
@@ -41,6 +51,12 @@ struct MovieLoadedView: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
             .background(.backgroundBase.opacity(0.94))
+        }
+    }
+
+    private func revealPreparation() {
+        withAnimation(.easeInOut(duration: 0.4)) {
+            scrollPosition.scrollTo(edge: .bottom)
         }
     }
 }
@@ -57,7 +73,7 @@ struct MovieLoadedView: View {
             rating: 8.2,
             genres: ["Action", "Science Fiction"]
         ),
-        subtitlePreparationState: .idle,
+        subtitlePreparationState: .downloadingSubtitle,
         openSubtitles: { }
     )
     .preferredColorScheme(.dark)

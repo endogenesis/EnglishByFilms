@@ -63,7 +63,7 @@ final class MovieViewModel {
     }
 
     func prepareSubtitles() async {
-        guard case let .loaded(movie) = state else {
+        guard !Task.isCancelled, case let .loaded(movie) = state else {
             return
         }
 
@@ -75,12 +75,13 @@ final class MovieViewModel {
                 router.showSubtitles(movieTitle: movie.title, subtitles: subtitleDocument)
             }
             return
-        case .findingSubtitle, .downloadingSubtitle:
+        case .findingSubtitle, .downloadingSubtitle, .preparingSubtitle:
             return
         }
 
         subtitlePreparationState = .findingSubtitle
         subtitleDocument = nil
+        let displayDeadline = ContinuousClock.now.advanced(by: .seconds(20))
 
         do {
             let page = try await subtitleService.searchEnglishSubtitles(
@@ -90,6 +91,7 @@ final class MovieViewModel {
             try Task.checkCancellation()
 
             guard let subtitle = subtitleSelector.selectBest(from: page.subtitles) else {
+                try await waitForPreparationDisplay(until: displayDeadline)
                 subtitlePreparationState = .failed(
                     message: "No supported English subtitles were found for this movie."
                 )
@@ -102,10 +104,13 @@ final class MovieViewModel {
             )
             try Task.checkCancellation()
 
+            subtitlePreparationState = .preparingSubtitle
             let subtitleDocument = try subtitleParser.parse(
                 downloadedSubtitle,
                 sourceLanguage: Locale.Language(identifier: "en")
             )
+            try await waitForPreparationDisplay(until: displayDeadline)
+
             self.subtitleDocument = subtitleDocument
             subtitlePreparationState = .subtitleReady
             router.showSubtitles(movieTitle: movie.title, subtitles: subtitleDocument)
@@ -114,7 +119,19 @@ final class MovieViewModel {
         } catch let error as URLError where error.code == .cancelled {
             subtitlePreparationState = .idle
         } catch {
-            subtitlePreparationState = .failed(message: error.localizedDescription)
+            let message = error.localizedDescription
+
+            do {
+                try await waitForPreparationDisplay(until: displayDeadline)
+                subtitlePreparationState = .failed(message: message)
+            } catch {
+                subtitlePreparationState = .idle
+            }
         }
+    }
+
+    private func waitForPreparationDisplay(until deadline: ContinuousClock.Instant) async throws {
+        try await ContinuousClock().sleep(until: deadline)
+        try Task.checkCancellation()
     }
 }

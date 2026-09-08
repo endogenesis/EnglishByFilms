@@ -21,9 +21,9 @@ struct MovieSubtitleActionView: View {
             }
 
             PrimaryButton(title, action: action)
-                .disabled(!isButtonEnabled)
+                .disabled(state.isPreparing)
                 .overlay(alignment: .leading) {
-                    if isLoading {
+                    if state.isPreparing {
                         ProgressView()
                             .tint(.backgroundBase)
                             .padding(.leading, 24)
@@ -41,28 +41,12 @@ struct MovieSubtitleActionView: View {
             "Finding subtitles…"
         case .downloadingSubtitle:
             "Downloading subtitles…"
+        case .preparingSubtitle:
+            "Creating lesson…"
         case .subtitleReady:
             "Open subtitles"
         case .failed:
             "Try again"
-        }
-    }
-
-    private var isButtonEnabled: Bool {
-        switch state {
-        case .idle, .subtitleReady, .failed:
-            true
-        case .findingSubtitle, .downloadingSubtitle:
-            false
-        }
-    }
-
-    private var isLoading: Bool {
-        switch state {
-        case .findingSubtitle, .downloadingSubtitle:
-            true
-        case .idle, .subtitleReady, .failed:
-            false
         }
     }
 

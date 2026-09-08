@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MovieView: View {
     @State private var viewModel: MovieViewModel
+    @State private var isSubtitlePreparationRequested = false
 
     init(viewModel: MovieViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -18,6 +19,14 @@ struct MovieView: View {
         content
             .task {
                 await viewModel.loadMovie()
+            }
+            .task(id: isSubtitlePreparationRequested) {
+                guard isSubtitlePreparationRequested else {
+                    return
+                }
+
+                await viewModel.prepareSubtitles()
+                isSubtitlePreparationRequested = false
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -58,9 +67,7 @@ struct MovieView: View {
     }
 
     private func openSubtitles() {
-        Task {
-            await viewModel.prepareSubtitles()
-        }
+        isSubtitlePreparationRequested = true
     }
 }
 

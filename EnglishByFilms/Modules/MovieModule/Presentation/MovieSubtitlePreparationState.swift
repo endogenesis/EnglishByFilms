@@ -9,6 +9,16 @@ enum MovieSubtitlePreparationState: Equatable {
     case idle
     case findingSubtitle
     case downloadingSubtitle
+    case preparingSubtitle
     case subtitleReady
     case failed(message: String)
+
+    var isPreparing: Bool {
+        switch self {
+        case .findingSubtitle, .downloadingSubtitle, .preparingSubtitle:
+            true
+        case .idle, .subtitleReady, .failed:
+            false
+        }
+    }
 }
