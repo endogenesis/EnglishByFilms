@@ -32,7 +32,6 @@ struct SubtitleView: View {
         .overlay(alignment: .trailing) {
             SubtitleProgressRailView(
                 progress: viewModel.progress,
-                progressStep: viewModel.progressStep,
                 updateProgress: viewModel.selectEntry(atProgress:)
             )
             .padding(.trailing, 10)

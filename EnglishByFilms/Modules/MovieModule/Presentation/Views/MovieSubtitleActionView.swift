@@ -27,7 +27,6 @@ struct MovieSubtitleActionView: View {
                         ProgressView()
                             .tint(.backgroundBase)
                             .padding(.leading, 24)
-                            .accessibilityHidden(true)
                     }
                 }
         }

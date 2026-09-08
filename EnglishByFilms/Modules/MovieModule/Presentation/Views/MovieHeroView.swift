@@ -34,7 +34,6 @@ struct MovieHeroView: View {
         .containerRelativeFrame(.horizontal)
         .frame(height: 280)
         .clipped()
-        .accessibilityHidden(true)
     }
 }
 

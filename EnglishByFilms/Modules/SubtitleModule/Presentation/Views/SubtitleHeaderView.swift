@@ -24,7 +24,6 @@ struct SubtitleHeaderView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .accessibilityElement(children: .combine)
     }
 
     private var subtitle: String {

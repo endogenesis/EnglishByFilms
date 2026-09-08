@@ -90,13 +90,11 @@ struct SearchMovieRow: View {
 }
 
 private struct RatingShimmerModifier: ViewModifier {
-    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
-
     let isActive: Bool
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if isActive && !accessibilityReduceMotion {
+        if isActive {
             content
                 .overlay {
                     GeometryReader { geometry in

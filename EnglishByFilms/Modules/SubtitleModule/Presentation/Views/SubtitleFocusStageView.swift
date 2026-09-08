@@ -12,7 +12,6 @@ struct SubtitleFocusStageView: View {
     let activeIndex: Int
     let selectEntry: (Int) -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var centeredIndex: Int?
 
     init(entries: [SubtitleEntry], activeIndex: Int, selectEntry: @escaping (Int) -> Void) {
@@ -37,7 +36,6 @@ struct SubtitleFocusStageView: View {
                             .containerRelativeFrame(.vertical) { length, _ in
                                 length / 2
                             }
-                            .accessibilityHidden(true)
 
                         LazyVStack(spacing: 20) {
                             ForEach(entries.indices, id: \.self) { index in
@@ -49,7 +47,6 @@ struct SubtitleFocusStageView: View {
                                         SubtitleTimeBadgeView(time: entry.startTime)
                                         SubtitleLineView(text: entry.text, distance: distance)
                                     }
-                                    .accessibilityElement(children: .combine)
                                 } else {
                                     SubtitleLineView(text: entry.text, distance: distance)
                                 }
@@ -61,7 +58,6 @@ struct SubtitleFocusStageView: View {
                             .containerRelativeFrame(.vertical) { length, _ in
                                 length / 2
                             }
-                            .accessibilityHidden(true)
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -88,12 +84,8 @@ struct SubtitleFocusStageView: View {
             return
         }
 
-        if reduceMotion {
+        withAnimation(.snappy(duration: 0.35)) {
             centeredIndex = newIndex
-        } else {
-            withAnimation(.snappy(duration: 0.35)) {
-                centeredIndex = newIndex
-            }
         }
     }
 }

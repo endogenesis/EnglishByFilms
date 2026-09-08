@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SubtitleProgressRailView: View {
     let progress: Double
-    let progressStep: Double
     let updateProgress: (Double) -> Void
 
     private static let knobDiameter: CGFloat = 10
@@ -44,13 +43,6 @@ struct SubtitleProgressRailView: View {
         }
         .frame(width: Self.interactionWidth)
         .frame(maxHeight: Self.maximumHeight)
-        .accessibilityElement()
-        .accessibilityLabel("Subtitle position")
-        .accessibilityValue(
-            Text(clampedProgress, format: .percent.precision(.fractionLength(0)))
-        )
-        .accessibilityHint("Adjust to move quickly through the subtitles.")
-        .accessibilityAdjustableAction(adjustProgress)
     }
 
     private var clampedProgress: Double {
@@ -65,17 +57,6 @@ struct SubtitleProgressRailView: View {
         let knobOrigin = location - Self.knobDiameter / 2
         return min(max(Double(knobOrigin / travelDistance), 0), 1)
     }
-
-    private func adjustProgress(_ direction: AccessibilityAdjustmentDirection) {
-        switch direction {
-        case .increment:
-            updateProgress(min(clampedProgress + progressStep, 1))
-        case .decrement:
-            updateProgress(max(clampedProgress - progressStep, 0))
-        @unknown default:
-            break
-        }
-    }
 }
 
 #Preview {
@@ -83,7 +64,6 @@ struct SubtitleProgressRailView: View {
 
     SubtitleProgressRailView(
         progress: progress,
-        progressStep: 0.05,
         updateProgress: { progress = $0 }
     )
         .padding(24)

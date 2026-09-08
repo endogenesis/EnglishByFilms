@@ -32,10 +32,6 @@ final class SubtitleViewModel {
         entries.count > 1 ? Double(state.activeEntryIndex) / Double(entries.count - 1) : 0
     }
 
-    var progressStep: Double {
-        entries.count > 1 ? 1 / Double(entries.count - 1) : 1
-    }
-
     func selectEntry(at index: Int) {
         guard !entries.isEmpty else {
             return
