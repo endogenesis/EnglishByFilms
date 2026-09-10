@@ -27,3 +27,9 @@ Lesson generation is designed to run on device using Apple Foundation Models, lo
 processing, and system translation.
 
 <sub>Artwork shown in this README was AI-generated for this project.</sub>
+
+## License
+
+The source code is available under the [MIT License](LICENSE). Third-party movie titles,
+posters, subtitles, trademarks, and service-provided data are excluded and remain subject to
+their respective owners' terms.
