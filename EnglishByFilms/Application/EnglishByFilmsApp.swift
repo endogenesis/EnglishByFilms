@@ -8,7 +8,6 @@
 import SwiftUI
 
 @main
-@MainActor
 struct EnglishByFilmsApp: App {
     @State private var coordinator = AppCoordinator(
         container: AppContainer()

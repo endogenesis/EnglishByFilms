@@ -7,7 +7,6 @@
 
 import Observation
 
-@MainActor
 @Observable
 final class SearchRouter {
     var path: [SearchRoute] = []

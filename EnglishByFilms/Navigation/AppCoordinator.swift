@@ -8,7 +8,6 @@
 import Observation
 import SwiftUI
 
-@MainActor
 @Observable
 final class AppCoordinator {
     var selectedTab: AppTab = .search

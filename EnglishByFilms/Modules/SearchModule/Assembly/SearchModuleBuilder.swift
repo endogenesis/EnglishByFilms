@@ -6,7 +6,6 @@
 //
 
 enum SearchModuleBuilder {
-    @MainActor
     static func build(
         router: SearchRouter,
         movieCatalogService: MovieCatalogService

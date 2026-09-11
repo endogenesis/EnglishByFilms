@@ -7,7 +7,6 @@
 
 import Observation
 
-@MainActor
 @Observable
 final class SubtitleViewModel {
     private(set) var state = SubtitleViewState()

@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@MainActor
 final class AppContainer {
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService

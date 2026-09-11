@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@MainActor
 struct RootTabView: View {
     @Bindable private var coordinator: AppCoordinator
 

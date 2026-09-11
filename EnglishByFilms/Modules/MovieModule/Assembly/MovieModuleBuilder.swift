@@ -6,7 +6,6 @@
 //
 
 enum MovieModuleBuilder {
-    @MainActor
     static func build(
         movieID: Int,
         router: MovieRouter,

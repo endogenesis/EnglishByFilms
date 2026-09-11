@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PreviewMovieCatalogService: MovieCatalogService {
+nonisolated struct PreviewMovieCatalogService: MovieCatalogService {
     private let movieDetailsCollection = [
         MovieDetails(
             id: 603,

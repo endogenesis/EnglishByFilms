@@ -32,7 +32,7 @@ final class MockGate {
     }
 }
 
-@MainActor
+
 final class MovieCatalogServiceMock: MovieCatalogService {
     var popularMoviesResults: [Result<MoviePage, any Error>] = []
     var searchMoviesResults: [Result<MoviePage, any Error>] = []
@@ -44,21 +44,18 @@ final class MovieCatalogServiceMock: MovieCatalogService {
 
     let gate = MockGate()
 
-    @MainActor
     func popularMovies(page: Int) async throws -> MoviePage {
         popularMoviesPages.append(page)
         await gate.waitIfClosed()
         return try takeNext(from: &popularMoviesResults)
     }
 
-    @MainActor
     func searchMovies(query: String, page: Int) async throws -> MoviePage {
         searchMoviesCalls.append((query: query, page: page))
         await gate.waitIfClosed()
         return try takeNext(from: &searchMoviesResults)
     }
 
-    @MainActor
     func movieDetails(id: Int) async throws -> MovieDetails {
         movieDetailsIDs.append(id)
         await gate.waitIfClosed()
@@ -66,7 +63,6 @@ final class MovieCatalogServiceMock: MovieCatalogService {
     }
 }
 
-@MainActor
 final class SubtitleServiceMock: SubtitleService {
     var searchResults: [Result<SubtitlePage, any Error>] = []
     var downloadResults: [Result<DownloadedSubtitle, any Error>] = []
@@ -76,14 +72,12 @@ final class SubtitleServiceMock: SubtitleService {
 
     let gate = MockGate()
 
-    @MainActor
     func searchEnglishSubtitles(tmdbMovieID: Int, page: Int) async throws -> SubtitlePage {
         searchCalls.append((tmdbMovieID: tmdbMovieID, page: page))
         await gate.waitIfClosed()
         return try takeNext(from: &searchResults)
     }
 
-    @MainActor
     func downloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
         downloadedFileIDs.append(fileID)
         await gate.waitIfClosed()
@@ -91,7 +85,7 @@ final class SubtitleServiceMock: SubtitleService {
     }
 }
 
-private func takeNext<Value>(from results: inout [Result<Value, any Error>]) throws -> Value {
+nonisolated private func takeNext<Value>(from results: inout [Result<Value, any Error>]) throws -> Value {
     guard !results.isEmpty else {
         throw UnqueuedCallError()
     }
