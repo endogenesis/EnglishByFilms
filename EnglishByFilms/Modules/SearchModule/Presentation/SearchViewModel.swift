@@ -51,6 +51,7 @@ final class SearchViewModel {
     func loadNextPage() async {
         guard case let .loaded(movies, currentNextPageState) = state,
               var context = paginationContext,
+              context.query == searchQuery,
               context.currentPage < context.totalPages else {
             return
         }
@@ -67,6 +68,11 @@ final class SearchViewModel {
 
         do {
             let page = try await loadPage(number: nextPageNumber, query: context.query)
+            try Task.checkCancellation()
+
+            guard context.query == searchQuery else {
+                return
+            }
 
             context.currentPage = page.currentPage
             context.totalPages = page.totalPages
@@ -75,7 +81,15 @@ final class SearchViewModel {
                 movies: appendingUniqueMovies(page.movies, to: movies),
                 nextPage: nextPageState(for: page)
             )
+        } catch is CancellationError {
+            return
+        } catch let error as URLError where error.code == .cancelled {
+            return
         } catch {
+            guard context.query == searchQuery else {
+                return
+            }
+
             state = .loaded(
                 movies: movies,
                 nextPage: .failed(message: error.localizedDescription)
@@ -91,6 +105,7 @@ final class SearchViewModel {
 
         do {
             let page = try await loadPage(number: 1, query: requestedQuery)
+            try Task.checkCancellation()
 
             guard !page.movies.isEmpty else {
                 state = .empty(query: requestedQuery)
