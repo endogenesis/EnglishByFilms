@@ -149,17 +149,77 @@ struct MovieViewModelTests {
         subtitleService.downloadResults = [.success(.fixture())]
         await viewModel.loadMovie()
 
-        subtitleService.gate.isClosed = true
+        subtitleService.searchGate.isClosed = true
         let firstPreparation = Task { await viewModel.prepareSubtitles() }
         await waitUntil { subtitleService.searchCalls.count == 1 }
 
         await viewModel.prepareSubtitles()
         #expect(subtitleService.searchCalls.count == 1)
 
-        subtitleService.gate.open()
+        subtitleService.searchGate.open()
         await firstPreparation.value
 
         #expect(subtitleService.downloadedFileIDs == [7])
         #expect(viewModel.subtitlePreparationState == .subtitleReady)
+    }
+
+    @Test func cancellationDuringSubtitleSearchDoesNotNavigate() async {
+        movieCatalogService.movieDetailsResults = [.success(.fixture(id: 42))]
+        subtitleService.searchResults = [.success(.fixture(subtitles: [.fixture(fileID: 7)]))]
+        subtitleService.downloadResults = [.success(.fixture())]
+        await viewModel.loadMovie()
+
+        subtitleService.searchGate.isClosed = true
+        let preparation = Task { await viewModel.prepareSubtitles() }
+        await waitUntil { subtitleService.searchCalls.count == 1 }
+
+        preparation.cancel()
+        subtitleService.searchGate.open()
+        await preparation.value
+
+        #expect(viewModel.subtitlePreparationState == .idle)
+        #expect(subtitleService.downloadedFileIDs.isEmpty)
+        #expect(searchRouter.path.isEmpty)
+    }
+
+    @Test func cancellationDuringSubtitleDownloadDoesNotNavigate() async {
+        movieCatalogService.movieDetailsResults = [.success(.fixture(id: 42))]
+        subtitleService.searchResults = [.success(.fixture(subtitles: [.fixture(fileID: 7)]))]
+        subtitleService.downloadResults = [.success(.fixture())]
+        await viewModel.loadMovie()
+
+        subtitleService.downloadGate.isClosed = true
+        let preparation = Task { await viewModel.prepareSubtitles() }
+        await waitUntil { subtitleService.downloadedFileIDs == [7] }
+
+        preparation.cancel()
+        subtitleService.downloadGate.open()
+        await preparation.value
+
+        #expect(viewModel.subtitlePreparationState == .idle)
+        #expect(searchRouter.path.isEmpty)
+    }
+
+    @Test func reopensPreparedSubtitlesWithoutAnotherRequest() async throws {
+        movieCatalogService.movieDetailsResults = [
+            .success(.fixture(id: 42, title: "The Matrix"))
+        ]
+        subtitleService.searchResults = [.success(.fixture(subtitles: [.fixture(fileID: 7)]))]
+        subtitleService.downloadResults = [.success(.fixture())]
+        await viewModel.loadMovie()
+        await viewModel.prepareSubtitles()
+        searchRouter.path.removeAll()
+
+        await viewModel.prepareSubtitles()
+
+        #expect(subtitleService.searchCalls.count == 1)
+        #expect(subtitleService.downloadedFileIDs == [7])
+        let route = try #require(searchRouter.path.first)
+        guard case let .subtitles(subtitleRoute) = route else {
+            Issue.record("Expected a subtitle route")
+            return
+        }
+        #expect(subtitleRoute.movieTitle == "The Matrix")
+        #expect(subtitleRoute.subtitles.entries.map(\.text) == ["Hello"])
     }
 }

@@ -70,17 +70,18 @@ final class SubtitleServiceMock: SubtitleService {
     private(set) var searchCalls: [(tmdbMovieID: Int, page: Int)] = []
     private(set) var downloadedFileIDs: [Int] = []
 
-    let gate = MockGate()
+    let searchGate = MockGate()
+    let downloadGate = MockGate()
 
     func searchEnglishSubtitles(tmdbMovieID: Int, page: Int) async throws -> SubtitlePage {
         searchCalls.append((tmdbMovieID: tmdbMovieID, page: page))
-        await gate.waitIfClosed()
+        await searchGate.waitIfClosed()
         return try takeNext(from: &searchResults)
     }
 
     func downloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
         downloadedFileIDs.append(fileID)
-        await gate.waitIfClosed()
+        await downloadGate.waitIfClosed()
         return try takeNext(from: &downloadResults)
     }
 }
