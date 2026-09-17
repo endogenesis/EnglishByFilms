@@ -103,6 +103,35 @@ struct SearchViewModelTests {
         #expect(viewModel.state == .failed(message: error.localizedDescription))
     }
 
+    @Test func retriesPopularMoviesAfterInitialFailure() async {
+        let movies = [MovieSummary.fixture(id: 1)]
+        movieCatalogService.popularMoviesResults = [
+            .failure(MovieCatalogError.server(statusCode: 500)),
+            .success(.fixture(movies: movies))
+        ]
+        await viewModel.loadMoviesIfNeeded()
+
+        await viewModel.retryInitialLoad()
+
+        #expect(movieCatalogService.popularMoviesPages == [1, 1])
+        #expect(viewModel.state == .loaded(movies: movies, nextPage: .finished))
+    }
+
+    @Test func retriesCurrentSearchQueryAfterInitialFailure() async {
+        let movies = [MovieSummary.fixture(id: 1)]
+        movieCatalogService.searchMoviesResults = [
+            .failure(MovieCatalogError.server(statusCode: 500)),
+            .success(.fixture(movies: movies))
+        ]
+        viewModel.query = "dune"
+        await viewModel.loadMoviesIfNeeded()
+
+        await viewModel.retryInitialLoad()
+
+        #expect(movieCatalogService.searchMoviesCalls.map(\.query) == ["dune", "dune"])
+        #expect(viewModel.state == .loaded(movies: movies, nextPage: .finished))
+    }
+
     @Test func keepsLoadingStateWhenInitialLoadIsCancelled() async {
         movieCatalogService.popularMoviesResults = [.failure(CancellationError())]
 

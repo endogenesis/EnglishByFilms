@@ -92,7 +92,19 @@ struct SearchView: View {
         case .empty(let query):
             ContentUnavailableView.search(text: query)
         case let .failed(message):
-            Text(message)
+            ContentUnavailableView {
+                Label("Couldn’t load movies", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text(message)
+            } actions: {
+                Button("Try again", action: retryInitialLoad)
+            }
+        }
+    }
+
+    private func retryInitialLoad() {
+        Task {
+            await viewModel.retryInitialLoad()
         }
     }
 }

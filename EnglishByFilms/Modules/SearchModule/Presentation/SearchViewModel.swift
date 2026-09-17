@@ -48,6 +48,14 @@ final class SearchViewModel {
         await loadMovies(query: requestedQuery)
     }
 
+    func retryInitialLoad() async {
+        guard case .failed = state else {
+            return
+        }
+
+        await loadMovies(query: searchQuery)
+    }
+
     func loadNextPage() async {
         guard case let .loaded(movies, currentNextPageState) = state,
               var context = paginationContext,
@@ -107,6 +115,10 @@ final class SearchViewModel {
             let page = try await loadPage(number: 1, query: requestedQuery)
             try Task.checkCancellation()
 
+            guard requestedQuery == searchQuery else {
+                return
+            }
+
             guard !page.movies.isEmpty else {
                 state = .empty(query: requestedQuery)
                 return
@@ -126,6 +138,10 @@ final class SearchViewModel {
         } catch let error as URLError where error.code == .cancelled {
             return
         } catch {
+            guard requestedQuery == searchQuery else {
+                return
+            }
+
             paginationContext = nil
             state = .failed(message: error.localizedDescription)
         }
