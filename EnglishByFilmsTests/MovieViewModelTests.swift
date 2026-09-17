@@ -113,7 +113,16 @@ struct MovieViewModelTests {
     @Test func failsWhenNoSupportedSubtitleIsFound() async {
         movieCatalogService.movieDetailsResults = [.success(.fixture(id: 42))]
         subtitleService.searchResults = [
-            .success(.fixture(subtitles: [.fixture(fileID: 1, fileCount: 2)]))
+            .success(.fixture(
+                subtitles: [.fixture(fileID: 1, fileCount: 2)],
+                currentPage: 1,
+                totalPages: 2
+            )),
+            .success(.fixture(
+                subtitles: [.fixture(fileID: 2, machineTranslated: true)],
+                currentPage: 2,
+                totalPages: 2
+            ))
         ]
         await viewModel.loadMovie()
 
@@ -122,8 +131,34 @@ struct MovieViewModelTests {
         #expect(viewModel.subtitlePreparationState == .failed(
             message: "No supported English subtitles were found for this movie."
         ))
+        #expect(subtitleService.searchCalls.map(\.page) == [1, 2])
         #expect(subtitleService.downloadedFileIDs.isEmpty)
         #expect(searchRouter.path.isEmpty)
+    }
+
+    @Test func preparesSupportedSubtitleFromLaterPage() async {
+        movieCatalogService.movieDetailsResults = [.success(.fixture(id: 42))]
+        subtitleService.searchResults = [
+            .success(.fixture(
+                subtitles: [.fixture(fileID: 1, fileCount: 2)],
+                currentPage: 1,
+                totalPages: 2
+            )),
+            .success(.fixture(
+                subtitles: [.fixture(fileID: 7)],
+                currentPage: 2,
+                totalPages: 2
+            ))
+        ]
+        subtitleService.downloadResults = [.success(.fixture())]
+        await viewModel.loadMovie()
+
+        await viewModel.prepareSubtitles()
+
+        #expect(subtitleService.searchCalls.map(\.page) == [1, 2])
+        #expect(subtitleService.downloadedFileIDs == [7])
+        #expect(viewModel.subtitlePreparationState == .subtitleReady)
+        #expect(searchRouter.path.count == 1)
     }
 
     @Test func keepsMovieStateWhenSubtitlePreparationFails() async {

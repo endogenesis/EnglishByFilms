@@ -87,13 +87,7 @@ final class MovieViewModel {
         let displayDeadline = ContinuousClock.now.advanced(by: minimumSubtitlePreparationDuration)
 
         do {
-            let page = try await subtitleService.searchEnglishSubtitles(
-                tmdbMovieID: movieID,
-                page: 1
-            )
-            try Task.checkCancellation()
-
-            guard let subtitle = subtitleSelector.selectBest(from: page.subtitles) else {
+            guard let subtitle = try await findSupportedSubtitle() else {
                 try await waitForPreparationDisplay(until: displayDeadline)
                 subtitlePreparationState = .failed(
                     message: "No supported English subtitles were found for this movie."
@@ -130,6 +124,28 @@ final class MovieViewModel {
             } catch {
                 subtitlePreparationState = .idle
             }
+        }
+    }
+
+    private func findSupportedSubtitle() async throws -> SubtitleSummary? {
+        var pageNumber = 1
+
+        while true {
+            let page = try await subtitleService.searchEnglishSubtitles(
+                tmdbMovieID: movieID,
+                page: pageNumber
+            )
+            try Task.checkCancellation()
+
+            if let subtitle = subtitleSelector.selectBest(from: page.subtitles) {
+                return subtitle
+            }
+
+            guard pageNumber < page.totalPages else {
+                return nil
+            }
+
+            pageNumber += 1
         }
     }
 
