@@ -8,6 +8,10 @@
 import Foundation
 
 nonisolated struct SRTSubtitleParser {
+    // SRT supports a small HTML-derived subset; unknown markup stays untouched.
+    private static let formattingTagPattern =
+        #"(?i)</?(?:i|b|u)\s*>|</?font(?:\s+color\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?\s*>"#
+
     func parse(
         _ subtitle: DownloadedSubtitle,
         sourceLanguage: Locale.Language
@@ -93,10 +97,15 @@ nonisolated struct SRTSubtitleParser {
             return nil
         }
 
-        let text = block.dropFirst(timelineIndex + 1)
+        let sourceText = block.dropFirst(timelineIndex + 1)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
             .joined(separator: " ")
+        let text = sourceText.replacingOccurrences(
+            of: Self.formattingTagPattern,
+            with: "",
+            options: .regularExpression
+        )
 
         guard !text.isEmpty else {
             return nil
