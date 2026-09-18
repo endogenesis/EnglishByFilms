@@ -33,7 +33,8 @@ final class MockGate {
 }
 
 
-final class MovieCatalogServiceMock: MovieCatalogService {
+@MainActor
+final class MovieCatalogServiceMock {
     var popularMoviesResults: [Result<MoviePage, any Error>] = []
     var searchMoviesResults: [Result<MoviePage, any Error>] = []
     var movieDetailsResults: [Result<MovieDetails, any Error>] = []
@@ -44,7 +45,7 @@ final class MovieCatalogServiceMock: MovieCatalogService {
 
     let gate = MockGate()
 
-    func popularMovies(page: Int) async throws -> MoviePage {
+    func  popularMovies(page: Int) async throws -> MoviePage {
         popularMoviesPages.append(page)
         await gate.waitIfClosed()
         return try takeNext(from: &popularMoviesResults)
@@ -63,6 +64,9 @@ final class MovieCatalogServiceMock: MovieCatalogService {
     }
 }
 
+extension MovieCatalogServiceMock: @MainActor MovieCatalogService {}
+
+@MainActor
 final class SubtitleServiceMock: SubtitleService {
     var searchResults: [Result<SubtitlePage, any Error>] = []
     var downloadResults: [Result<DownloadedSubtitle, any Error>] = []
@@ -73,13 +77,27 @@ final class SubtitleServiceMock: SubtitleService {
     let searchGate = MockGate()
     let downloadGate = MockGate()
 
-    func searchEnglishSubtitles(tmdbMovieID: Int, page: Int) async throws -> SubtitlePage {
+    nonisolated func searchEnglishSubtitles(
+        tmdbMovieID: Int,
+        page: Int
+    ) async throws -> SubtitlePage {
+        try await performSearchEnglishSubtitles(tmdbMovieID: tmdbMovieID, page: page)
+    }
+
+    nonisolated func downloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
+        try await performDownloadSubtitle(fileID: fileID)
+    }
+
+    private func performSearchEnglishSubtitles(
+        tmdbMovieID: Int,
+        page: Int
+    ) async throws -> SubtitlePage {
         searchCalls.append((tmdbMovieID: tmdbMovieID, page: page))
         await searchGate.waitIfClosed()
         return try takeNext(from: &searchResults)
     }
 
-    func downloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
+    private func performDownloadSubtitle(fileID: Int) async throws -> DownloadedSubtitle {
         downloadedFileIDs.append(fileID)
         await downloadGate.waitIfClosed()
         return try takeNext(from: &downloadResults)
