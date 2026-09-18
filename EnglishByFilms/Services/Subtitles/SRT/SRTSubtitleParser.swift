@@ -120,20 +120,69 @@ nonisolated struct SRTSubtitleParser {
     }
 
     private func parseTimestamp(_ value: String) -> TimeInterval? {
-        let components = value.replacing(",", with: ".").split(separator: ":")
+        let timeComponents = value.split(separator: ":", omittingEmptySubsequences: false)
 
         guard
-            components.count == 3,
-            let hours = Double(components[0]),
-            let minutes = Double(components[1]),
-            let seconds = Double(components[2]),
-            hours >= 0,
-            minutes >= 0 && minutes < 60,
-            seconds >= 0 && seconds < 60
+            timeComponents.count == 3,
+            let hours = parseDecimalInteger(timeComponents[0], digitCount: 2...19),
+            let minutes = parseDecimalInteger(timeComponents[1], digitCount: 2...2),
+            minutes < 60
         else {
             return nil
         }
 
-        return hours * 3_600 + minutes * 60 + seconds
+        let secondComponents = timeComponents[2].split(
+            omittingEmptySubsequences: false,
+            whereSeparator: { $0 == "," || $0 == "." }
+        )
+
+        guard
+            secondComponents.count == 2,
+            let seconds = parseDecimalInteger(secondComponents[0], digitCount: 2...2),
+            seconds < 60,
+            let milliseconds = parseDecimalInteger(secondComponents[1], digitCount: 3...3)
+        else {
+            return nil
+        }
+
+        let (hourMilliseconds, hourOverflow) = hours.multipliedReportingOverflow(by: 3_600_000)
+        let minuteMilliseconds = minutes * 60_000
+        let secondMilliseconds = seconds * 1_000
+        let (hoursAndMinutes, minuteOverflow) = hourMilliseconds.addingReportingOverflow(
+            minuteMilliseconds
+        )
+        let (wholeSeconds, secondOverflow) = hoursAndMinutes.addingReportingOverflow(
+            secondMilliseconds
+        )
+        let (totalMilliseconds, millisecondOverflow) = wholeSeconds.addingReportingOverflow(
+            milliseconds
+        )
+
+        guard !hourOverflow, !minuteOverflow, !secondOverflow, !millisecondOverflow else {
+            return nil
+        }
+
+        let timestamp = TimeInterval(totalMilliseconds) / 1_000
+        guard timestamp.isFinite, timestamp >= 0 else {
+            return nil
+        }
+
+        return timestamp
+    }
+
+    private func parseDecimalInteger(
+        _ component: Substring,
+        digitCount: ClosedRange<Int>
+    ) -> Int64? {
+        let bytes = component.utf8
+
+        guard
+            digitCount.contains(bytes.count),
+            bytes.allSatisfy({ $0 >= 48 && $0 <= 57 })
+        else {
+            return nil
+        }
+
+        return Int64(component)
     }
 }
