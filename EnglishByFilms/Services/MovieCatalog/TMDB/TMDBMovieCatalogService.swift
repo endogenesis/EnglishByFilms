@@ -79,9 +79,9 @@ actor TMDBMovieCatalogService: MovieCatalogService {
     // MARK: - Private
 
     private func moviePage(for request: URLRequest) async throws -> MoviePage {
-        async let response: TMDBMoviePageDTO = response(for: request)
-        async let genreNamesByID: [Int: String] = availableGenreNamesByID()
-        let (response, genreNamesByID) = try await (response, genreNamesByID)
+        async let responseTask: TMDBMoviePageDTO = response(for: request)
+        async let genreNamesTask: [Int: String] = availableGenreNamesByID()
+        let (response, genreNamesByID) = try await (responseTask, genreNamesTask)
         try Task.checkCancellation()
 
         return response.toDomain(
