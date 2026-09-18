@@ -86,6 +86,24 @@ struct TMDBMovieCatalogServiceTests {
         #expect(popularRequest.queryValue(for: "page") == "1")
     }
 
+    @Test func popularMoviesRemainAvailableWhenGenresFail() async throws {
+        stubEndpoints(genreStatusCode: 500)
+
+        let page = try await makeService().popularMovies(page: 1)
+
+        #expect(page.movies.map(\.id) == [27205])
+        #expect(page.movies.first?.genres == [])
+    }
+
+    @Test func searchMoviesRemainAvailableWhenGenresFail() async throws {
+        stubEndpoints(genreStatusCode: 500)
+
+        let page = try await makeService().searchMovies(query: "inception", page: 1)
+
+        #expect(page.movies.map(\.id) == [27205])
+        #expect(page.movies.first?.genres == [])
+    }
+
     @Test func cachesGenresBetweenRequests() async throws {
         stubEndpoints()
         let service = makeService()
@@ -141,6 +159,27 @@ struct TMDBMovieCatalogServiceTests {
         }
     }
 
+    @Test func propagatesMoviePageFailureWhenGenresSucceed() async {
+        stubEndpoints(statusCode: 500)
+
+        await expectThrows(MovieCatalogError.server(statusCode: 500)) {
+            try await makeService().popularMovies(page: 1)
+        }
+    }
+
+    @Test func propagatesGenreRequestCancellation() async {
+        stubEndpoints(genreErrorCode: .cancelled)
+
+        do {
+            _ = try await makeService().popularMovies(page: 1)
+            Issue.record("Expected genre cancellation to be propagated")
+        } catch let error as URLError {
+            #expect(error.code == .cancelled)
+        } catch {
+            Issue.record("Expected URLError, got \(error)")
+        }
+    }
+
     // MARK: - Private
 
     private func makeService(accessToken: String = "test-token") -> TMDBMovieCatalogService {
@@ -158,7 +197,11 @@ struct TMDBMovieCatalogServiceTests {
         )
     }
 
-    private func stubEndpoints(statusCode: Int = 200) {
+    private func stubEndpoints(
+        statusCode: Int = 200,
+        genreStatusCode: Int = 200,
+        genreErrorCode: URLError.Code? = nil
+    ) {
         let genresJSON = """
         {"genres": [{"id": 28, "name": "Action"}, {"id": 878, "name": "Science Fiction"}]}
         """
@@ -195,7 +238,11 @@ struct TMDBMovieCatalogServiceTests {
 
         URLProtocolStub.setHandler(forHost: host) { request in
             if request.path.hasSuffix("/genre/movie/list") {
-                return (200, Data(genresJSON.utf8))
+                if let genreErrorCode {
+                    throw URLError(genreErrorCode)
+                }
+
+                return (genreStatusCode, Data(genresJSON.utf8))
             }
 
             if request.path.hasSuffix("/movie/popular") || request.path.hasSuffix("/search/movie") {

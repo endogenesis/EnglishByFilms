@@ -52,13 +52,7 @@ actor TMDBMovieCatalogService: MovieCatalogService {
                 URLQueryItem(name: "page", value: String(page))
             ]
         )
-        async let response: TMDBMoviePageDTO = response(for: request)
-        let genreNamesByID = try await genreNamesByID()
-
-        return try await response.toDomain(
-            imageBaseURL: configuration.posterImageBaseURL,
-            genreNamesByID: genreNamesByID
-        )
+        return try await moviePage(for: request)
     }
 
     func searchMovies(query: String, page: Int) async throws -> MoviePage {
@@ -70,13 +64,7 @@ actor TMDBMovieCatalogService: MovieCatalogService {
                 URLQueryItem(name: "include_adult", value: "false")
             ]
         )
-        async let response: TMDBMoviePageDTO = response(for: request)
-        let genreNamesByID = try await genreNamesByID()
-
-        return try await response.toDomain(
-            imageBaseURL: configuration.posterImageBaseURL,
-            genreNamesByID: genreNamesByID
-        )
+        return try await moviePage(for: request)
     }
 
     func movieDetails(id: Int) async throws -> MovieDetails {
@@ -89,6 +77,31 @@ actor TMDBMovieCatalogService: MovieCatalogService {
     }
 
     // MARK: - Private
+
+    private func moviePage(for request: URLRequest) async throws -> MoviePage {
+        async let response: TMDBMoviePageDTO = response(for: request)
+        async let genreNamesByID: [Int: String] = availableGenreNamesByID()
+        let (response, genreNamesByID) = try await (response, genreNamesByID)
+        try Task.checkCancellation()
+
+        return response.toDomain(
+            imageBaseURL: configuration.posterImageBaseURL,
+            genreNamesByID: genreNamesByID
+        )
+    }
+
+    private func availableGenreNamesByID() async throws -> [Int: String] {
+        do {
+            return try await genreNamesByID()
+        } catch {
+            guard !isCancellation(error) else {
+                throw error
+            }
+
+            log("Continuing without genre metadata: \(error.localizedDescription)")
+            return [:]
+        }
+    }
 
     private func genreNamesByID() async throws -> [Int: String] {
         if let cachedGenreNamesByID {
