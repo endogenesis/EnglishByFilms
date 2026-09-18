@@ -20,9 +20,10 @@ jobs:
     timeout-minutes: 30
 
     env:
+      DERIVED_DATA_PATH: ${{ runner.temp }}/DerivedData
       PROJECT: EnglishByFilms.xcodeproj
       SCHEME: EnglishByFilms
-      DESTINATION: platform=iOS Simulator,OS=26.5,name=iPhone 17
+      SOURCE_PACKAGES_PATH: ${{ runner.temp }}/SourcePackages
 
     steps:
       - name: Checkout
@@ -34,14 +35,63 @@ jobs:
       - name: Prepare CI secrets file
         run: cp EnglishByFilms/Configuration/Secrets.example.json EnglishByFilms/Configuration/Secrets.json
 
-      - name: Resolve package dependencies
-        run: xcodebuild -resolvePackageDependencies -project "$PROJECT" -scheme "$SCHEME"
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.SOURCE_PACKAGES_PATH }}
+          key: swiftpm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            swiftpm-${{ runner.os }}-${{ runner.arch }}-
 
-      - name: Run tests
+      - name: Start simulator
         run: |
-          xcodebuild test \
+          simulator_udid="$(
+            xcrun simctl list devices available -j |
+              jq -r '
+                .devices
+                | to_entries[]
+                | select(.key | endswith("iOS-26-5"))
+                | .value[]
+                | select(.name == "iPhone 17")
+                | .udid
+              ' |
+              head -n 1
+          )"
+
+          if [[ -z "$simulator_udid" ]]; then
+            echo "iPhone 17 with iOS 26.5 is unavailable"
+            exit 1
+          fi
+
+          echo "SIMULATOR_UDID=$simulator_udid" >> "$GITHUB_ENV"
+          echo "DESTINATION=platform=iOS Simulator,id=$simulator_udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$simulator_udid" || true
+
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -onlyUsePackageVersionsFromResolvedFile \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Wait for simulator
+        run: xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+
+      - name: Run tests
+        run: |
+          xcodebuild test-without-building \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -onlyUsePackageVersionsFromResolvedFile \
+            -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO
