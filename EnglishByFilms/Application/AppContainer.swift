@@ -11,6 +11,7 @@ final class AppContainer {
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService
     private let subtitleParser: SRTSubtitleParser
+    private let lessonGenerationService: LessonGenerationService
 
     init() {
         movieCatalogService = TMDBMovieCatalogService(
@@ -20,16 +21,19 @@ final class AppContainer {
             configuration: .live()
         )
         subtitleParser = SRTSubtitleParser()
+        lessonGenerationService = LocalLessonGenerationService()
     }
 
     init(
         movieCatalogService: MovieCatalogService,
         subtitleService: SubtitleService,
-        subtitleParser: SRTSubtitleParser = SRTSubtitleParser()
+        subtitleParser: SRTSubtitleParser = SRTSubtitleParser(),
+        lessonGenerationService: LessonGenerationService = LocalLessonGenerationService()
     ) {
         self.movieCatalogService = movieCatalogService
         self.subtitleService = subtitleService
         self.subtitleParser = subtitleParser
+        self.lessonGenerationService = lessonGenerationService
     }
 
     func makeSearchModule(router: SearchRouter) -> some View {
@@ -49,7 +53,28 @@ final class AppContainer {
         )
     }
 
-    func makeSubtitleModule(movieTitle: String, subtitles: SubtitleDocument) -> some View {
-        SubtitleModuleBuilder.build(movieTitle: movieTitle, subtitles: subtitles)
+    func makeSubtitleModule(
+        movieTitle: String,
+        subtitles: SubtitleDocument,
+        searchRouter: SearchRouter
+    ) -> some View {
+        SubtitleModuleBuilder.build(
+            movieTitle: movieTitle,
+            subtitles: subtitles,
+            router: SubtitleRouter(searchRouter: searchRouter)
+        )
+    }
+
+    func makeLessonModule(
+        movieTitle: String,
+        subtitles: SubtitleDocument,
+        searchRouter: SearchRouter
+    ) -> some View {
+        LessonModuleBuilder.build(
+            movieTitle: movieTitle,
+            subtitles: subtitles,
+            router: LessonRouter(searchRouter: searchRouter),
+            lessonGenerationService: lessonGenerationService
+        )
     }
 }

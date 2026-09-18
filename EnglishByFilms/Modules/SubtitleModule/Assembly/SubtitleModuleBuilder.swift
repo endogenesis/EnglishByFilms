@@ -6,8 +6,16 @@
 //
 
 enum SubtitleModuleBuilder {
-    static func build(movieTitle: String, subtitles: SubtitleDocument) -> SubtitleView {
-        let viewModel = SubtitleViewModel(movieTitle: movieTitle, subtitles: subtitles)
+    static func build(
+        movieTitle: String,
+        subtitles: SubtitleDocument,
+        router: SubtitleRouter
+    ) -> SubtitleView {
+        let viewModel = SubtitleViewModel(
+            movieTitle: movieTitle,
+            subtitles: subtitles,
+            router: router
+        )
 
         return SubtitleView(viewModel: viewModel)
     }

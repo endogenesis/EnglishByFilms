@@ -86,6 +86,25 @@ final class SubtitleServiceMock: SubtitleService {
     }
 }
 
+final class LessonGenerationServiceMock: LessonGenerationService {
+    var results: [Result<LessonContent, any Error>] = []
+
+    private(set) var subtitles: [SubtitleDocument] = []
+    private(set) var translationLanguages: [Locale.Language] = []
+
+    let gate = MockGate()
+
+    func generateExercises(
+        from subtitles: SubtitleDocument,
+        translationLanguage: Locale.Language
+    ) async throws -> LessonContent {
+        self.subtitles.append(subtitles)
+        translationLanguages.append(translationLanguage)
+        await gate.waitIfClosed()
+        return try takeNext(from: &results)
+    }
+}
+
 nonisolated private func takeNext<Value>(from results: inout [Result<Value, any Error>]) throws -> Value {
     guard !results.isEmpty else {
         throw UnqueuedCallError()

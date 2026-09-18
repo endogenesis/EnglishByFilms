@@ -37,6 +37,12 @@ struct SubtitleView: View {
             .padding(.trailing, 10)
         }
         .background(.backgroundBase)
+        .safeAreaInset(edge: .bottom) {
+            PrimaryButton("Create lesson", action: viewModel.showLesson)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(.backgroundBase.opacity(0.94))
+        }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
@@ -48,7 +54,8 @@ struct SubtitleView: View {
     NavigationStack {
         SubtitleModuleBuilder.build(
             movieTitle: "The Matrix",
-            subtitles: PreviewSubtitleDocument.theMatrix
+            subtitles: PreviewSubtitleDocument.theMatrix,
+            router: SubtitleRouter(searchRouter: SearchRouter())
         )
     }
     .preferredColorScheme(.dark)

@@ -22,4 +22,20 @@ final class SearchRouter {
             )
         )
     }
+
+    func showLesson(movieTitle: String, subtitles: SubtitleDocument) {
+        path.append(
+            .lesson(
+                LessonRoute(movieTitle: movieTitle, subtitles: subtitles)
+            )
+        )
+    }
+
+    func finishLesson() {
+        guard case .lesson = path.last else {
+            return
+        }
+
+        path.removeLast()
+    }
 }

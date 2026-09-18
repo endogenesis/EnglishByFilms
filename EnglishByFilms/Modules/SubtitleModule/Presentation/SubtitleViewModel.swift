@@ -13,10 +13,12 @@ final class SubtitleViewModel {
 
     let movieTitle: String
     let subtitles: SubtitleDocument
+    private let router: SubtitleRouter
 
-    init(movieTitle: String, subtitles: SubtitleDocument) {
+    init(movieTitle: String, subtitles: SubtitleDocument, router: SubtitleRouter) {
         self.movieTitle = movieTitle
         self.subtitles = subtitles
+        self.router = router
     }
 
     var entries: [SubtitleEntry] {
@@ -48,5 +50,9 @@ final class SubtitleViewModel {
         let clampedProgress = min(max(progress, 0), 1)
         let index = Int((clampedProgress * Double(entries.count - 1)).rounded())
         selectEntry(at: index)
+    }
+
+    func showLesson() {
+        router.showLesson(movieTitle: movieTitle, subtitles: subtitles)
     }
 }

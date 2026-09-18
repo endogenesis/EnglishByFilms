@@ -26,7 +26,14 @@ struct SearchTabView: View {
                     case let .subtitles(route):
                         container.makeSubtitleModule(
                             movieTitle: route.movieTitle,
-                            subtitles: route.subtitles
+                            subtitles: route.subtitles,
+                            searchRouter: router
+                        )
+                    case let .lesson(route):
+                        container.makeLessonModule(
+                            movieTitle: route.movieTitle,
+                            subtitles: route.subtitles,
+                            searchRouter: router
                         )
                     }
                 }
