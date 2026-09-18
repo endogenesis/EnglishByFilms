@@ -26,16 +26,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Show Xcode version
         run: xcodebuild -version
 
       - name: Prepare CI secrets file
         run: cp EnglishByFilms/Configuration/Secrets.example.json EnglishByFilms/Configuration/Secrets.json
-
-      - name: Resolve package dependencies
-        run: xcodebuild -resolvePackageDependencies -project "$PROJECT" -scheme "$SCHEME"
 
       - name: Run tests
         run: |
