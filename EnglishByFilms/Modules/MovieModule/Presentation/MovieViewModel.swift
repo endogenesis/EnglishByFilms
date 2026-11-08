@@ -18,9 +18,10 @@ final class MovieViewModel {
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService
     private let subtitleParser: SRTSubtitleParser
+    private let lessonGenerationService: LessonGenerationService
     private let minimumSubtitlePreparationDuration: Duration
     private let subtitleSelector = SubtitleSelector()
-    private var subtitleDocument: SubtitleDocument?
+    private var lessonContent: LessonContent?
 
     init(
         movieID: Int,
@@ -28,13 +29,15 @@ final class MovieViewModel {
         movieCatalogService: MovieCatalogService,
         subtitleService: SubtitleService,
         subtitleParser: SRTSubtitleParser,
-        minimumSubtitlePreparationDuration: Duration = .seconds(20)
+        lessonGenerationService: LessonGenerationService,
+        minimumSubtitlePreparationDuration: Duration = .seconds(0)
     ) {
         self.movieID = movieID
         self.router = router
         self.movieCatalogService = movieCatalogService
         self.subtitleService = subtitleService
         self.subtitleParser = subtitleParser
+        self.lessonGenerationService = lessonGenerationService
         self.minimumSubtitlePreparationDuration = minimumSubtitlePreparationDuration
     }
 
@@ -74,8 +77,8 @@ final class MovieViewModel {
         case .idle, .failed:
             break
         case .subtitleReady:
-            if let subtitleDocument {
-                router.showSubtitles(movieTitle: movie.title, subtitles: subtitleDocument)
+            if let lessonContent {
+                router.showLesson(lessonContent, movieTitle: movie.title)
             }
             return
         case .findingSubtitle, .downloadingSubtitle, .preparingSubtitle:
@@ -83,7 +86,7 @@ final class MovieViewModel {
         }
 
         subtitlePreparationState = .findingSubtitle
-        subtitleDocument = nil
+        lessonContent = nil
         let displayDeadline = ContinuousClock.now.advanced(by: minimumSubtitlePreparationDuration)
 
         do {
@@ -106,11 +109,15 @@ final class MovieViewModel {
                 downloadedSubtitle,
                 sourceLanguage: Locale.Language(identifier: "en")
             )
+            let lessonContent = try await lessonGenerationService.generateExercises(
+                from: subtitleDocument,
+                translationLanguage: Locale.current.language
+            )
             try await waitForPreparationDisplay(until: displayDeadline)
 
-            self.subtitleDocument = subtitleDocument
+            self.lessonContent = lessonContent
             subtitlePreparationState = .subtitleReady
-            router.showSubtitles(movieTitle: movie.title, subtitles: subtitleDocument)
+            router.showLesson(lessonContent, movieTitle: movie.title)
         } catch is CancellationError {
             subtitlePreparationState = .idle
         } catch let error as URLError where error.code == .cancelled {

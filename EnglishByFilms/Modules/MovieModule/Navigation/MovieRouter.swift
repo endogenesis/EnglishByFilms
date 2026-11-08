@@ -15,4 +15,8 @@ final class MovieRouter {
     func showSubtitles(movieTitle: String, subtitles: SubtitleDocument) {
         searchRouter.showSubtitles(movieTitle: movieTitle, subtitles: subtitles)
     }
+
+    func showLesson(_ lesson: LessonContent, movieTitle: String) {
+        searchRouter.showLesson(lesson, movieTitle: movieTitle)
+    }
 }

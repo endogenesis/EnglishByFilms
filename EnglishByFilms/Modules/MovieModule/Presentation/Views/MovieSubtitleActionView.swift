@@ -35,7 +35,7 @@ struct MovieSubtitleActionView: View {
     private var title: String {
         switch state {
         case .idle:
-            "Open subtitles"
+            "Create lesson"
         case .findingSubtitle:
             "Finding subtitles…"
         case .downloadingSubtitle:
@@ -43,7 +43,7 @@ struct MovieSubtitleActionView: View {
         case .preparingSubtitle:
             "Creating lesson…"
         case .subtitleReady:
-            "Open subtitles"
+            "Open lesson"
         case .failed:
             "Try again"
         }

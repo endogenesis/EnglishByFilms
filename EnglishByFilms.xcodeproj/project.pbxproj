@@ -25,9 +25,28 @@
 		E5AB10FE0000000000000002 /* EnglishByFilmsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EnglishByFilmsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E5851B46305F2EC100972CC6 /* Exceptions for "EnglishByFilms" folder in "EnglishByFilmsTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Modules/LessonModule/Assembly/LessonModuleBuilder.swift,
+				Modules/LessonModule/Navigation/LessonRouter.swift,
+				Modules/LessonModule/Presentation/LessonView.swift,
+				Modules/LessonModule/Presentation/LessonViewModel.swift,
+				Modules/LessonModule/Presentation/LessonViewState.swift,
+				Modules/LessonModule/Presentation/Views/LessonHeaderView.swift,
+				Modules/SearchModule/Navigation/SearchRouter.swift,
+			);
+			target = E5AB10FE0000000000000001 /* EnglishByFilmsTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E58013D73023DC9F00F1B1E2 /* EnglishByFilms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E5851B46305F2EC100972CC6 /* Exceptions for "EnglishByFilms" folder in "EnglishByFilmsTests" target */,
+			);
 			path = EnglishByFilms;
 			sourceTree = "<group>";
 		};
@@ -270,6 +289,7 @@
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
@@ -329,6 +349,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_VERSION = 6.0;

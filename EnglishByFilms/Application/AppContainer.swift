@@ -11,6 +11,7 @@ final class AppContainer {
     private let movieCatalogService: MovieCatalogService
     private let subtitleService: SubtitleService
     private let subtitleParser: SRTSubtitleParser
+    private let lessonGenerationService: LessonGenerationService
 
     init() {
         movieCatalogService = TMDBMovieCatalogService(
@@ -20,16 +21,19 @@ final class AppContainer {
             configuration: .live()
         )
         subtitleParser = SRTSubtitleParser()
+        lessonGenerationService = LocalLessonGenerationService()
     }
 
     init(
         movieCatalogService: MovieCatalogService,
         subtitleService: SubtitleService,
-        subtitleParser: SRTSubtitleParser = SRTSubtitleParser()
+        subtitleParser: SRTSubtitleParser = SRTSubtitleParser(),
+        lessonGenerationService: LessonGenerationService = LocalLessonGenerationService()
     ) {
         self.movieCatalogService = movieCatalogService
         self.subtitleService = subtitleService
         self.subtitleParser = subtitleParser
+        self.lessonGenerationService = lessonGenerationService
     }
 
     func makeSearchModule(router: SearchRouter) -> some View {
@@ -45,7 +49,20 @@ final class AppContainer {
             router: MovieRouter(searchRouter: searchRouter),
             movieCatalogService: movieCatalogService,
             subtitleService: subtitleService,
-            subtitleParser: subtitleParser
+            subtitleParser: subtitleParser,
+            lessonGenerationService: lessonGenerationService
+        )
+    }
+
+    func makeLessonModule(
+        movieTitle: String,
+        lesson: LessonContent,
+        searchRouter: SearchRouter
+    ) -> some View {
+        LessonModuleBuilder.build(
+            movieTitle: movieTitle,
+            lessonModel: lesson,
+            router: LessonRouter(searchRouter: searchRouter)
         )
     }
 

@@ -31,6 +31,13 @@ struct SearchTabView: View {
                     }
                 }
         }
+        .fullScreenCover(item: $router.presentedLesson) { presentation in
+            container.makeLessonModule(
+                movieTitle: presentation.movieTitle,
+                lesson: presentation.lesson,
+                searchRouter: router
+            )
+        }
     }
 }
 

@@ -38,7 +38,10 @@ struct MovieView: View {
     private var content: some View {
         switch viewModel.state {
         case .loading:
-            ProgressView("Loading movie…")
+            HStack {
+                Text("Loading movie…")
+                ProgressView()
+            }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.backgroundBase)
         case let .loaded(movie):
@@ -78,7 +81,8 @@ struct MovieView: View {
             router: MovieRouter(searchRouter: SearchRouter()),
             movieCatalogService: PreviewMovieCatalogService(),
             subtitleService: PreviewSubtitleService(),
-            subtitleParser: SRTSubtitleParser()
+            subtitleParser: SRTSubtitleParser(),
+            lessonGenerationService: LocalLessonGenerationService()
         )
     }
 }

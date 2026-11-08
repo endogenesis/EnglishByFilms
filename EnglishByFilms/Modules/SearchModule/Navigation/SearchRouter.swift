@@ -10,9 +10,14 @@ import Observation
 @Observable
 final class SearchRouter {
     var path: [SearchRoute] = []
+    var presentedLesson: LessonPresentation?
 
     func showMovie(id: Int) {
         path.append(.movie(id: id))
+    }
+
+    func showLesson(_ lesson: LessonContent, movieTitle: String) {
+        presentedLesson = LessonPresentation(movieTitle: movieTitle, lesson: lesson)
     }
 
     func showSubtitles(movieTitle: String, subtitles: SubtitleDocument) {
@@ -21,5 +26,9 @@ final class SearchRouter {
                 SubtitleRoute(movieTitle: movieTitle, subtitles: subtitles)
             )
         )
+    }
+
+    func dismissLesson() {
+        presentedLesson = nil
     }
 }

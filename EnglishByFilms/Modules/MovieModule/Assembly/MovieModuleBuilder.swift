@@ -11,14 +11,16 @@ enum MovieModuleBuilder {
         router: MovieRouter,
         movieCatalogService: MovieCatalogService,
         subtitleService: SubtitleService,
-        subtitleParser: SRTSubtitleParser
+        subtitleParser: SRTSubtitleParser,
+        lessonGenerationService: LessonGenerationService
     ) -> MovieView {
         let viewModel = MovieViewModel(
             movieID: movieID,
             router: router,
             movieCatalogService: movieCatalogService,
             subtitleService: subtitleService,
-            subtitleParser: subtitleParser
+            subtitleParser: subtitleParser,
+            lessonGenerationService: lessonGenerationService
         )
 
         return MovieView(viewModel: viewModel)

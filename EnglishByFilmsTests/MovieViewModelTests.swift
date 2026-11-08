@@ -23,6 +23,7 @@ struct MovieViewModelTests {
             movieCatalogService: movieCatalogService,
             subtitleService: subtitleService,
             subtitleParser: subtitleParser,
+            lessonGenerationService: LocalLessonGenerationService(),
             minimumSubtitlePreparationDuration: .zero
         )
     }
@@ -100,14 +101,9 @@ struct MovieViewModelTests {
         #expect(subtitleService.downloadedFileIDs == [2])
         #expect(viewModel.subtitlePreparationState == .subtitleReady)
 
-        let route = try #require(searchRouter.path.first)
-        guard case let .subtitles(subtitleRoute) = route else {
-            Issue.record("Expected a subtitle route")
-            return
-        }
-
-        #expect(subtitleRoute.movieTitle == "The Matrix")
-        #expect(subtitleRoute.subtitles.entries.map(\.text) == ["Hello"])
+        let lessonPresentation = try #require(searchRouter.presentedLesson)
+        #expect(lessonPresentation.lesson.exercises.count == 1)
+        #expect(searchRouter.path.isEmpty)
     }
 
     @Test func failsWhenNoSupportedSubtitleIsFound() async {
@@ -235,7 +231,7 @@ struct MovieViewModelTests {
         #expect(searchRouter.path.isEmpty)
     }
 
-    @Test func reopensPreparedSubtitlesWithoutAnotherRequest() async throws {
+    @Test func reopensPreparedLessonWithoutAnotherRequest() async throws {
         movieCatalogService.movieDetailsResults = [
             .success(.fixture(id: 42, title: "The Matrix"))
         ]
@@ -249,12 +245,8 @@ struct MovieViewModelTests {
 
         #expect(subtitleService.searchCalls.count == 1)
         #expect(subtitleService.downloadedFileIDs == [7])
-        let route = try #require(searchRouter.path.first)
-        guard case let .subtitles(subtitleRoute) = route else {
-            Issue.record("Expected a subtitle route")
-            return
-        }
-        #expect(subtitleRoute.movieTitle == "The Matrix")
-        #expect(subtitleRoute.subtitles.entries.map(\.text) == ["Hello"])
+        let lessonPresentation = try #require(searchRouter.presentedLesson)
+        #expect(lessonPresentation.lesson.exercises.count == 1)
+        #expect(searchRouter.path.isEmpty)
     }
 }
