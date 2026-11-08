@@ -102,6 +102,7 @@ struct MovieViewModelTests {
         #expect(viewModel.subtitlePreparationState == .subtitleReady)
 
         let lessonPresentation = try #require(searchRouter.presentedLesson)
+        #expect(lessonPresentation.movieTitle == "The Matrix")
         #expect(lessonPresentation.lesson.exercises.count == 1)
         #expect(searchRouter.path.isEmpty)
     }
@@ -129,10 +130,11 @@ struct MovieViewModelTests {
         ))
         #expect(subtitleService.searchCalls.map(\.page) == [1, 2])
         #expect(subtitleService.downloadedFileIDs.isEmpty)
+        #expect(searchRouter.presentedLesson == nil)
         #expect(searchRouter.path.isEmpty)
     }
 
-    @Test func preparesSupportedSubtitleFromLaterPage() async {
+    @Test func preparesSupportedSubtitleFromLaterPage() async throws {
         movieCatalogService.movieDetailsResults = [.success(.fixture(id: 42))]
         subtitleService.searchResults = [
             .success(.fixture(
@@ -154,7 +156,9 @@ struct MovieViewModelTests {
         #expect(subtitleService.searchCalls.map(\.page) == [1, 2])
         #expect(subtitleService.downloadedFileIDs == [7])
         #expect(viewModel.subtitlePreparationState == .subtitleReady)
-        #expect(searchRouter.path.count == 1)
+        let lessonPresentation = try #require(searchRouter.presentedLesson)
+        #expect(lessonPresentation.lesson.exercises.count == 1)
+        #expect(searchRouter.path.isEmpty)
     }
 
     @Test func keepsMovieStateWhenSubtitlePreparationFails() async {
@@ -171,6 +175,7 @@ struct MovieViewModelTests {
             message: error.localizedDescription
         ))
         #expect(subtitleService.downloadedFileIDs.isEmpty)
+        #expect(searchRouter.presentedLesson == nil)
         #expect(searchRouter.path.isEmpty)
     }
 
@@ -210,6 +215,7 @@ struct MovieViewModelTests {
 
         #expect(viewModel.subtitlePreparationState == .idle)
         #expect(subtitleService.downloadedFileIDs.isEmpty)
+        #expect(searchRouter.presentedLesson == nil)
         #expect(searchRouter.path.isEmpty)
     }
 
@@ -228,6 +234,7 @@ struct MovieViewModelTests {
         await preparation.value
 
         #expect(viewModel.subtitlePreparationState == .idle)
+        #expect(searchRouter.presentedLesson == nil)
         #expect(searchRouter.path.isEmpty)
     }
 
@@ -239,13 +246,18 @@ struct MovieViewModelTests {
         subtitleService.downloadResults = [.success(.fixture())]
         await viewModel.loadMovie()
         await viewModel.prepareSubtitles()
-        searchRouter.path.removeAll()
+        let originalPresentation = try #require(searchRouter.presentedLesson)
+        searchRouter.dismissLesson()
+        #expect(searchRouter.presentedLesson == nil)
 
         await viewModel.prepareSubtitles()
 
         #expect(subtitleService.searchCalls.count == 1)
         #expect(subtitleService.downloadedFileIDs == [7])
         let lessonPresentation = try #require(searchRouter.presentedLesson)
+        #expect(lessonPresentation.id != originalPresentation.id)
+        #expect(lessonPresentation.movieTitle == "The Matrix")
+        #expect(lessonPresentation.lesson == originalPresentation.lesson)
         #expect(lessonPresentation.lesson.exercises.count == 1)
         #expect(searchRouter.path.isEmpty)
     }
